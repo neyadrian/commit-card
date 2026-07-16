@@ -1,0 +1,40 @@
+package com.commitcard.app.model;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+@Table(name = "users")
+@Getter
+@Setter
+@NoArgsConstructor
+public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String githubUsername;
+    private String nome;
+    private String bio;
+    private String avatarUrl;
+
+    @Enumerated(EnumType.STRING)
+    private Plano plano = Plano.FREE;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Project> projects = new ArrayList<>();
+
+    public User(String githubUsername) {
+        this.githubUsername = githubUsername;
+    }
+
+    public enum Plano {
+        FREE,
+        PREMIUM
+    }
+}
