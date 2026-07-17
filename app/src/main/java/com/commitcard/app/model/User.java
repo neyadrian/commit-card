@@ -26,8 +26,8 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Plano plano = Plano.FREE;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Project> projects = new ArrayList<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Project> projetos = new ArrayList<>();
 
     public User(String githubUsername) {
         this.githubUsername = githubUsername;
