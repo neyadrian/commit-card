@@ -2,8 +2,11 @@ package com.commitcard.app.service;
 
 import com.commitcard.app.dto.GithubRepoDTO;
 import com.commitcard.app.dto.GithubUserDTO;
-import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -23,28 +26,29 @@ public class GithubService {
         this.restTemplate = restTemplate;
     }
 
-    @PostConstruct
-    public void debugToken() {
-        if (githubToken == null || githubToken.isBlank()) {
-            System.out.println("Nenhum token do GitHub configurado — limite de 60 req/hora.");
-        } else {
-            System.out.println("Token do GitHub carregado (começa com: " + githubToken.substring(0, 4) + "...)");
-        }
-    }
-
     public GithubUserDTO buscarUsuario(String username) {
         String url = GITHUB_API + "/users/" + username;
-        return restTemplate.getForObject(url, GithubUserDTO.class);
+        ResponseEntity<GithubUserDTO> response = restTemplate.exchange(
+                url, HttpMethod.GET, criarRequestComHeaders(), GithubUserDTO.class
+        );
+        return response.getBody();
     }
 
     public List<GithubRepoDTO> buscarRepositorios(String username) {
         String url = GITHUB_API + "/users/" + username + "/repos";
-        GithubRepoDTO[] repos = restTemplate.getForObject(url, GithubRepoDTO[].class);
+        ResponseEntity<GithubRepoDTO[]> response = restTemplate.exchange(
+                url, HttpMethod.GET, criarRequestComHeaders(), GithubRepoDTO[].class
+        );
+        GithubRepoDTO[] repos = response.getBody();
+        return repos == null ? List.of() : Arrays.asList(repos);
+    }
 
-        if (repos == null) {
-            return List.of();
-        } else {
-            return Arrays.asList(repos);
+    private HttpEntity<Void> criarRequestComHeaders() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Accept", "application/vnd.github+json");
+        if (githubToken != null && !githubToken.isBlank()) {
+            headers.set("Authorization", "Bearer " + githubToken);
         }
+        return new HttpEntity<>(headers);
     }
 }
