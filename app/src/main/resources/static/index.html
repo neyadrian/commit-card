@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Commit Card — seu histórico de commits, transformado em portfólio</title>
+<meta name="description" content="Cole seu usuário do GitHub e gere um portfólio compartilhável e um currículo em PDF a partir dos seus repositórios reais.">
+<link rel="icon" type="image/svg+xml" href="logo.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .wrap{ max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+  .hero{
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 88px 24px 40px;
+    text-align: center;
+  }
+  .hero-eyebrow{
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--accent);
+    margin: 0 0 18px;
+    display:inline-flex;
+    align-items:center;
+    gap: 8px;
+    background: var(--accent-soft);
+    padding: 6px 14px;
+    border-radius: 999px;
+  }
+  .hero-eyebrow::before{
+    content:'';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .hero h1{
+    font-family: var(--display);
+    font-size: clamp(34px, 5.4vw, 58px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.08;
+    margin: 0 0 20px;
+  }
+  .hero h1 .accent{ color: var(--accent); }
+  .hero-sub{
+    font-size: 17px;
+    color: var(--text-dim);
+    max-width: 56ch;
+    margin: 0 auto 36px;
+  }
+
+  .hero-form{ max-width: 480px; margin: 0 auto; }
+  .hero-search-row{
+    display:flex;
+    gap: 10px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 8px;
+    box-shadow: var(--shadow);
+  }
+  .hero-search-shell{ flex:1; display:flex; align-items:center; gap: 8px; padding: 0 12px; }
+  .hero-search-shell .at{ color: var(--text-faint); font-family: var(--mono); font-size: 14px; }
+  #hero-username{
+    flex:1; min-width: 0; background: transparent; border: none; color: var(--text);
+    font-family: var(--mono); font-size: 14.5px; padding: 12px 0;
+  }
+  #hero-username:focus{ outline: none; }
+  #hero-username::placeholder{ color: var(--text-faint); }
+  .hero-example{ margin-top: 16px; font-size: 13.5px; color: var(--text-faint); }
+
+  .mockup-shell{
+    max-width: 900px; margin: 56px auto 0;
+    background: var(--bg-elevated); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); box-shadow: var(--shadow); overflow: hidden;
+  }
+  .mockup-bar{ display:flex; align-items:center; gap: 7px; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+  .mockup-dot{ width: 9px; height: 9px; border-radius: 50%; background: var(--border-strong); }
+  .mockup-body{ padding: 28px; }
+  .mockup-profile{ display:flex; gap: 14px; align-items:center; margin-bottom: 20px; }
+  .mockup-avatar{ width: 52px; height:52px; border-radius: 16px; background: linear-gradient(135deg, var(--accent), var(--violet)); flex-shrink: 0; }
+  .mockup-name{ font-family: var(--display); font-weight: 700; font-size: 16px; margin: 0; }
+  .mockup-handle{ font-family: var(--mono); font-size: 12px; color: var(--accent); margin: 2px 0 0; }
+  .mockup-grid{ display:grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  @media (max-width: 640px){ .mockup-grid{ grid-template-columns: 1fr; } .mockup-body{ padding: 20px; } }
+  .mockup-card{ border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; }
+  .mockup-card-title{ font-family: var(--mono); font-size: 12.5px; font-weight: 700; margin: 0 0 6px; }
+  .mockup-card-bar{ height: 6px; border-radius: 3px; background: var(--border); margin-bottom: 5px; }
+  .mockup-card-bar.short{ width: 60%; }
+  .mockup-card-dot{ display:inline-block; width: 6px; height:6px; border-radius: 50%; background: var(--violet); margin-right: 5px; }
+  .mockup-card-stat{ font-family: var(--mono); font-size: 11px; color: var(--text-faint); margin-top: 8px; }
+
+  .steps{ padding: 100px 0 20px; }
+  .steps-header{ text-align:center; max-width: 560px; margin: 0 auto 52px; }
+  .steps-header h2{ font-family: var(--display); font-size: clamp(26px, 3.4vw, 36px); font-weight: 700; letter-spacing: -0.015em; margin: 0 0 12px; }
+  .steps-header p{ color: var(--text-dim); font-size: 15.5px; margin: 0; }
+  .steps-grid{ display:grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  @media (max-width: 780px){ .steps-grid{ grid-template-columns: 1fr; } }
+  .step-card{ background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px 24px; }
+  .step-num{
+    font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--accent-contrast);
+    background: var(--accent); width: 30px; height: 30px; border-radius: 9px;
+    display:flex; align-items:center; justify-content:center; margin-bottom: 18px;
+  }
+  .step-card h3{ font-family: var(--display); font-size: 17.5px; font-weight: 700; margin: 0 0 8px; letter-spacing: -0.01em; }
+  .step-card p{ font-size: 14px; color: var(--text-dim); margin: 0; }
+
+  .features{ padding: 100px 0 20px; }
+  .features-grid{ display:grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 780px){ .features-grid{ grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 520px){ .features-grid{ grid-template-columns: 1fr; } }
+  .feature-card{ border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; background: var(--bg-card); }
+  .feature-icon{
+    width: 36px; height: 36px; border-radius: 10px; background: var(--accent-soft); color: var(--accent);
+    display:flex; align-items:center; justify-content:center; margin-bottom: 14px;
+  }
+  .feature-icon svg{ width: 18px; height: 18px; }
+  .feature-card h3{ font-size: 15px; font-weight: 700; margin: 0 0 6px; font-family: var(--display); }
+  .feature-card p{ font-size: 13.5px; color: var(--text-dim); margin: 0; }
+
+  .cta-section{
+    margin: 110px auto 0; max-width: 780px; text-align: center;
+    background: var(--bg-elevated); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 56px 32px; box-shadow: var(--shadow);
+  }
+  .cta-section h2{ font-family: var(--display); font-size: clamp(24px, 3vw, 32px); font-weight: 700; letter-spacing: -0.015em; margin: 0 0 12px; }
+  .cta-section p{ color: var(--text-dim); font-size: 15px; margin: 0 0 28px; }
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-left">
+    <a class="brand" href="index.html" style="text-decoration:none;">
+      <svg width="28" height="28" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+        <rect x="4" y="4" width="56" height="56" rx="16" fill="var(--bg-input)" stroke="var(--accent)" stroke-width="2.5"/>
+        <path d="M22 48V32" stroke="var(--accent)" stroke-width="4" stroke-linecap="round"/>
+        <path d="M22 32V17" stroke="var(--accent)" stroke-width="4" stroke-linecap="round"/>
+        <path d="M22 32L37 20" stroke="var(--accent)" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="22" cy="48" r="3.6" fill="var(--bg-input)" stroke="var(--accent)" stroke-width="2.6"/>
+        <circle cx="22" cy="32" r="3.6" fill="var(--accent)"/>
+        <circle cx="22" cy="17" r="3.6" fill="var(--bg-input)" stroke="var(--accent)" stroke-width="2.6"/>
+        <circle cx="37" cy="20" r="3.6" fill="var(--bg-input)" stroke="var(--accent)" stroke-width="2.6"/>
+      </svg>
+      <span class="brand-name">commitcard</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#como-funciona">Como funciona</a></li>
+      <li><a href="#recursos">Recursos</a></li>
+    </ul>
+  </div>
+  <div class="nav-right">
+    <div id="auth-slot"></div>
+    <button class="theme-toggle" id="theme-toggle" aria-label="Alternar tema claro/escuro">
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"/></svg>
+      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.2M12 19.8V22M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2 12h2.2M19.8 12H22M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg>
+    </button>
+    <a class="btn primary sm" href="app.html">Abrir app</a>
+  </div>
+</nav>
+
+<main>
+
+  <section class="hero">
+    <p class="hero-eyebrow">de graça, direto do seu github</p>
+    <h1>Seu histórico de commits,<br>transformado em <span class="accent">portfólio</span></h1>
+    <p class="hero-sub">Cola seu usuário do GitHub. O commitcard sincroniza seus repositórios, você escolhe os projetos em destaque, e pronto: um link pra compartilhar e um currículo em PDF pra baixar.</p>
+
+    <form class="hero-form" id="hero-form">
+      <div class="hero-search-row">
+        <div class="hero-search-shell">
+          <span class="at">@</span>
+          <input id="hero-username" type="text" placeholder="usuario-do-github" autocomplete="off" spellcheck="false">
+        </div>
+        <button type="submit" class="btn primary">Gerar meu portfólio</button>
+      </div>
+    </form>
+    <p class="hero-example">sem cadastro · <a href="app.html?user=neyadrian">ver um exemplo</a></p>
+
+    <div class="mockup-shell" aria-hidden="true">
+      <div class="mockup-bar">
+        <span class="mockup-dot"></span><span class="mockup-dot"></span><span class="mockup-dot"></span>
+      </div>
+      <div class="mockup-body">
+        <div class="mockup-profile">
+          <div class="mockup-avatar"></div>
+          <div>
+            <p class="mockup-name">Seu Nome</p>
+            <p class="mockup-handle">@seu-usuario</p>
+          </div>
+        </div>
+        <div class="mockup-grid">
+          <div class="mockup-card">
+            <p class="mockup-card-title">api-pedidos</p>
+            <div class="mockup-card-bar"></div>
+            <div class="mockup-card-bar short"></div>
+            <p class="mockup-card-stat"><span class="mockup-card-dot"></span>Java · ★ 42</p>
+          </div>
+          <div class="mockup-card">
+            <p class="mockup-card-title">dashboard-react</p>
+            <div class="mockup-card-bar"></div>
+            <div class="mockup-card-bar short"></div>
+            <p class="mockup-card-stat"><span class="mockup-card-dot"></span>TypeScript · ★ 18</p>
+          </div>
+          <div class="mockup-card">
+            <p class="mockup-card-title">cli-tools</p>
+            <div class="mockup-card-bar"></div>
+            <div class="mockup-card-bar short"></div>
+            <p class="mockup-card-stat"><span class="mockup-card-dot"></span>Go · ★ 7</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <section class="steps" id="como-funciona">
+      <div class="steps-header">
+        <h2>Como funciona</h2>
+        <p>Três passos, sem configuração, sem digitar nada além do seu usuário.</p>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <h3>Conecte seu GitHub</h3>
+          <p>Digite seu usuário. O commitcard busca seus repositórios públicos automaticamente pela API do GitHub.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <h3>Escolha os destaques</h3>
+          <p>Marque quais projetos aparecem no seu portfólio e no currículo — você decide a curadoria, não o algoritmo.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <h3>Compartilhe</h3>
+          <p>Um link público pra colocar no LinkedIn ou na bio, e um botão pra exportar tudo em PDF pronto pra vaga.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="features" id="recursos">
+      <div class="steps-header">
+        <h2>Tudo que você precisa, nada que você não pediu</h2>
+        <p>Focado em uma coisa: transformar seu trabalho real em algo apresentável.</p>
+      </div>
+      <div class="features-grid">
+
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 0 0-3.16 19.5c.5.1.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.53 2.36 1.09 2.94.84.09-.65.35-1.09.63-1.34-2.22-.25-4.56-1.11-4.56-4.95 0-1.1.39-1.99 1.03-2.69-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02a9.5 9.5 0 0 1 5 0c1.91-1.3 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.69 0 3.85-2.34 4.7-4.57 4.95.36.31.68.92.68 1.85v2.75c0 .27.18.58.69.48A10 10 0 0 0 12 2Z"/></svg>
+          </div>
+          <h3>Sincronização com o GitHub</h3>
+          <p>Puxa nome, bio, avatar e repositórios direto da API oficial — sempre atualizado, sem digitar nada manualmente.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M9 15h6M9 11h3"/></svg>
+          </div>
+          <h3>Currículo em PDF com foto</h3>
+          <p>Preenche contato, resumo, experiência e formação; usa sua foto do GitHub ou envia outra. O PDF sai com os projetos em destaque já inclusos.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.5 15.4 6.5M8.6 13.5l6.8 4"/></svg>
+          </div>
+          <h3>Link compartilhável</h3>
+          <p>Uma URL própria pra colocar na bio do LinkedIn, no e-mail ou mandar direto pro recrutador.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21v-7M4 10V3M12 21v-11M12 6V3M20 21v-5M20 12V3"/><path d="M1 14h6M9 10h6M17 16h6"/></svg>
+          </div>
+          <h3>Curadoria dos projetos</h3>
+          <p>Nem todo repositório merece aparecer. Você escolhe exatamente quais entram no portfólio e no currículo.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.2M12 19.8V22M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2 12h2.2M19.8 12H22M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg>
+          </div>
+          <h3>Modo claro e escuro</h3>
+          <p>A interface se adapta à sua preferência e lembra a escolha na próxima visita.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v16"/></svg>
+          </div>
+          <h3>Sem cadastro</h3>
+          <p>Não precisa criar conta nem senha. É só o seu usuário do GitHub.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="cta-section">
+      <h2>Seu próximo portfólio já existe — está nos seus commits</h2>
+      <p>Cola seu usuário do GitHub e veja em segundos.</p>
+      <form id="cta-form" class="hero-form" style="margin: 0 auto;">
+        <div class="hero-search-row">
+          <div class="hero-search-shell">
+            <span class="at">@</span>
+            <input id="cta-username" type="text" placeholder="usuario-do-github" autocomplete="off" spellcheck="false">
+          </div>
+          <button type="submit" class="btn primary">Gerar</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span class="brand-name">commitcard</span>
+    <span class="footer-tagline">feito com Spring Boot &amp; a API do GitHub</span>
+  </div>
+</footer>
+
+<script src="theme.js"></script>
+<script src="auth.js"></script>
+<script>
+  function irParaApp(username){
+    const nome = (username || '').trim().replace(/^@/, '');
+    if (!nome) return;
+    window.location.href = `app.html?user=${encodeURIComponent(nome)}`;
+  }
+
+  document.getElementById('hero-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    irParaApp(document.getElementById('hero-username').value);
+  });
+
+  document.getElementById('cta-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    irParaApp(document.getElementById('cta-username').value);
+  });
+</script>
+
+</body>
+</html>

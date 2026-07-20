@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Commit Card — seu portfólio</title>
+<link rel="icon" type="image/svg+xml" href="logo.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .wrap{ max-width: 860px; margin: 0 auto; padding: 48px 24px 100px; }
+
+  /* ---------- Search card ---------- */
+  .search-card{
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    box-shadow: var(--shadow);
+    margin-bottom: 44px;
+  }
+  .search-eyebrow{ font-family: var(--mono); font-size: 12px; color: var(--accent); letter-spacing: .04em; margin: 0 0 8px; }
+  .search-title{ font-family: var(--display); font-size: 24px; font-weight: 700; margin: 0 0 20px; letter-spacing: -0.015em; }
+  .search-row{ display:flex; gap: 10px; }
+  .search-input-shell{
+    flex:1; display:flex; align-items:center; gap: 8px;
+    background: var(--bg-input); border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm); padding: 0 14px;
+  }
+  .search-input-shell:focus-within{ border-color: var(--accent); }
+  .search-input-shell .at{ color: var(--text-faint); font-family: var(--mono); font-size: 14px; }
+  #username-input{
+    flex:1; min-width: 0; background: transparent; border: none; color: var(--text);
+    font-family: var(--mono); font-size: 14px; padding: 12px 0;
+  }
+  #username-input::placeholder{ color: var(--text-faint); }
+  #username-input:focus{ outline: none; }
+
+  #state-area{ min-height: 20px; }
+
+  .empty-box{ border: 1px dashed var(--border-strong); border-radius: var(--radius); padding: 32px 24px; text-align: center; }
+  .empty-box p{ color: var(--text-dim); font-size: 14.5px; margin: 0 0 18px; }
+  .empty-box .who{ font-family: var(--mono); color: var(--text); font-weight: 600; }
+
+  /* ---------- Profile ---------- */
+  .profile{ display: flex; gap: 20px; align-items: flex-start; margin-bottom: 12px; }
+  .avatar{
+    width: 80px; height: 80px; border-radius: 22px; border: 1px solid var(--border);
+    box-shadow: var(--shadow); flex-shrink: 0; background: var(--bg-elevated); object-fit: cover;
+  }
+  .profile-info{ flex:1; min-width:0; padding-top: 2px; }
+  .profile-name{ font-family: var(--display); font-size: 24px; font-weight: 700; margin: 0 0 4px; letter-spacing: -0.015em; }
+  .profile-handle{ font-family: var(--mono); font-size: 13px; color: var(--accent); margin: 0 0 12px; }
+  .profile-bio{ font-size: 14.5px; color: var(--text-dim); margin: 0 0 16px; max-width: 56ch; }
+
+  /* ---------- Project grid ---------- */
+  .project-grid{ display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  @media (max-width: 640px){ .project-grid{ grid-template-columns: 1fr; } }
+
+  .project-card{
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 18px; transition: border-color .15s ease, transform .12s ease, box-shadow .15s ease;
+    display:flex; flex-direction: column; gap: 8px;
+  }
+  .project-card:hover{ border-color: var(--border-strong); transform: translateY(-2px); box-shadow: var(--shadow); }
+  @media (prefers-reduced-motion: reduce){ .project-card:hover{ transform: none; } }
+
+  .project-top{ display:flex; align-items:center; justify-content: space-between; gap: 8px; }
+  .project-hash{
+    font-family: var(--mono); font-size: 11px; color: var(--text-faint); background: var(--bg-input);
+    border: 1px solid var(--border); padding: 2px 7px; border-radius: 999px;
+  }
+  .project-name{ font-family: var(--mono); font-size: 15px; font-weight: 700; color: var(--text); margin: 0; word-break: break-word; }
+  .project-name a{ color: inherit; }
+  .project-name a:hover{ color: var(--accent); text-decoration: none; }
+  .project-desc{ font-size: 13.5px; color: var(--text-dim); margin: 0; flex: 1; }
+  .project-stats{ display:flex; gap: 14px; flex-wrap: wrap; font-family: var(--mono); font-size: 12px; margin-top: 4px; }
+  .stat{ display:flex; align-items:center; gap: 5px; color: var(--text-dim); }
+  .stat.lang::before{ content:''; width: 8px; height: 8px; border-radius: 50%; background: var(--violet); display:inline-block; }
+  .stat.stars{ color: var(--amber); }
+  .grid-empty{ font-size: 13.5px; color: var(--text-faint); grid-column: 1 / -1; }
+
+  /* ---------- Manage list ---------- */
+  details.manage{ border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-elevated); overflow: hidden; }
+  details.manage summary{
+    cursor: pointer; list-style: none; padding: 14px 18px; font-size: 14px; font-weight: 500;
+    color: var(--text-dim); display:flex; align-items:center; gap: 10px; user-select: none;
+  }
+  details.manage summary::-webkit-details-marker{ display:none; }
+  details.manage summary::before{ content: '▸'; color: var(--accent); transition: transform .12s ease; display: inline-block; }
+  details.manage[open] summary::before{ transform: rotate(90deg); }
+  @media (prefers-reduced-motion: reduce){ details.manage summary::before{ transition: none; } }
+
+  .manage-list{ border-top: 1px solid var(--border); }
+  .manage-row{ display:flex; align-items:center; gap: 12px; padding: 12px 18px; border-bottom: 1px solid var(--border); font-size: 13.5px; }
+  .manage-row:last-child{ border-bottom: none; }
+  .manage-row-name{ flex:1; min-width: 0; font-family: var(--mono); color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .manage-row-name .dim{ color: var(--text-faint); font-weight: 400; }
+
+  .toggle{
+    width: 40px; height: 23px; border-radius: 999px; border: 1px solid var(--border-strong);
+    background: var(--bg-input); position: relative; cursor: pointer; flex-shrink: 0; padding: 0;
+  }
+  .toggle::after{
+    content:''; position:absolute; top: 2px; left: 2px; width: 17px; height: 17px; border-radius: 50%;
+    background: var(--text-faint); transition: transform .15s ease, background .15s ease;
+  }
+  .toggle.on{ border-color: var(--accent); background: color-mix(in srgb, var(--accent) 18%, var(--bg-input)); }
+  .toggle.on::after{ transform: translateX(17px); background: var(--accent); }
+  @media (prefers-reduced-motion: reduce){ .toggle::after{ transition: none; } }
+
+  .footer-note{ font-family: var(--mono); font-size: 12px; color: var(--text-faint); margin: 16px 0 0; }
+
+  .visitor-note{
+    font-size: 13px;
+    color: var(--text-dim);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    margin: 0 0 24px;
+  }
+  .visitor-note a{ font-weight: 600; }
+
+  /* ---------- Modal ---------- */
+  .modal-overlay{
+    position: fixed; inset: 0; background: rgba(6,8,12,.6); backdrop-filter: blur(2px);
+    display:flex; align-items: flex-start; justify-content: center; padding: 40px 16px; z-index: 100; overflow-y: auto;
+  }
+  .modal-overlay[hidden]{ display:none; }
+
+  .modal{
+    background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-lg);
+    box-shadow: var(--shadow); max-width: 620px; width: 100%; padding: 0;
+    max-height: calc(100vh - 80px); display: flex; flex-direction: column;
+  }
+  .modal-header{ display:flex; align-items:flex-start; justify-content: space-between; padding: 22px 24px 16px; border-bottom: 1px solid var(--border); }
+  .modal-title{ font-family: var(--display); font-size: 19px; font-weight: 700; margin: 0 0 4px; }
+  .modal-subtitle{ font-size: 13px; color: var(--text-dim); margin:0; max-width: 46ch; }
+  .modal-close{ background: none; border: none; color: var(--text-faint); cursor: pointer; font-size: 20px; line-height: 1; padding: 4px; }
+  .modal-close:hover{ color: var(--text); }
+  .modal-body{ padding: 20px 24px; overflow-y: auto; }
+  .modal-footer{
+    display:flex; align-items:center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+    padding: 16px 24px 22px; border-top: 1px solid var(--border);
+  }
+
+  .field-group{ margin-bottom: 18px; }
+  .field-row{ display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 480px){ .field-row{ grid-template-columns: 1fr; } }
+
+  label{ display:block; font-size: 12.5px; font-weight: 600; color: var(--text-dim); margin-bottom: 6px; }
+  input[type="text"], input[type="email"], input[type="tel"], textarea{
+    width: 100%; background: var(--bg-input); border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+    color: var(--text); font-size: 13.5px; padding: 10px 12px; resize: vertical;
+  }
+  input:focus, textarea:focus{ outline: none; border-color: var(--accent); }
+  textarea{ min-height: 64px; line-height: 1.45; }
+
+  .form-section-title{
+    font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em;
+    color: var(--text-faint); margin: 28px 0 12px;
+  }
+  .form-section-title:first-child{ margin-top: 0; }
+
+  .entry-card{
+    border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px;
+    margin-bottom: 10px; position: relative; background: var(--bg-card);
+  }
+  .entry-remove{ position: absolute; top: 10px; right: 10px; background: none; border: none; color: var(--text-faint); cursor: pointer; font-size: 13px; padding: 2px 6px; }
+  .entry-remove:hover{ color: var(--danger); }
+
+  .add-entry-btn{
+    background: none; border: 1px dashed var(--border-strong); border-radius: var(--radius-sm);
+    color: var(--text-dim); font-size: 13px; font-weight: 600; padding: 9px 14px; cursor: pointer; width: 100%;
+  }
+  .add-entry-btn:hover{ border-color: var(--accent); color: var(--accent); }
+
+  .hint-small{ font-size: 12px; color: var(--text-faint); margin-top: 6px; }
+
+  /* ---------- Photo picker ---------- */
+  .photo-picker{ display:flex; align-items:center; gap: 16px; margin-bottom: 6px; }
+  .photo-preview{
+    width: 64px; height: 64px; border-radius: 16px; object-fit: cover;
+    border: 1px solid var(--border-strong); background: var(--bg-input); flex-shrink: 0;
+  }
+  .photo-preview.empty{ display:flex; align-items:center; justify-content:center; color: var(--text-faint); font-size: 11px; text-align:center; }
+  .photo-actions{ display:flex; flex-direction: column; gap: 6px; }
+  .photo-actions-row{ display:flex; gap: 8px; flex-wrap: wrap; }
+  .photo-btn{
+    font-size: 12.5px; font-weight: 600; border-radius: 999px; border: 1px solid var(--border-strong);
+    background: var(--bg-input); color: var(--text-dim); padding: 6px 12px; cursor: pointer;
+  }
+  .photo-btn:hover{ border-color: var(--accent); color: var(--text); }
+  .photo-btn.active{ border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+  #f-foto-arquivo{ display:none; }
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-left">
+    <a class="brand" href="index.html" style="text-decoration:none;">
+      <svg width="28" height="28" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+        <rect x="4" y="4" width="56" height="56" rx="16" fill="var(--bg-input)" stroke="var(--accent)" stroke-width="2.5"/>
+        <path d="M22 48V32" stroke="var(--accent)" stroke-width="4" stroke-linecap="round"/>
+        <path d="M22 32V17" stroke="var(--accent)" stroke-width="4" stroke-linecap="round"/>
+        <path d="M22 32L37 20" stroke="var(--accent)" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="22" cy="48" r="3.6" fill="var(--bg-input)" stroke="var(--accent)" stroke-width="2.6"/>
+        <circle cx="22" cy="32" r="3.6" fill="var(--accent)"/>
+        <circle cx="22" cy="17" r="3.6" fill="var(--bg-input)" stroke="var(--accent)" stroke-width="2.6"/>
+        <circle cx="37" cy="20" r="3.6" fill="var(--bg-input)" stroke="var(--accent)" stroke-width="2.6"/>
+      </svg>
+      <span class="brand-name">commitcard</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html#como-funciona">Como funciona</a></li>
+      <li><a href="index.html#recursos">Recursos</a></li>
+    </ul>
+  </div>
+  <div class="nav-right">
+    <div id="auth-slot"></div>
+    <button class="theme-toggle" id="theme-toggle" aria-label="Alternar tema claro/escuro">
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"/></svg>
+      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.2M12 19.8V22M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2 12h2.2M19.8 12H22M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg>
+    </button>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <div class="search-card">
+    <p class="search-eyebrow">$ commitcard show</p>
+    <h1 class="search-title">Transforme seus commits num portfólio</h1>
+    <div class="search-row">
+      <div class="search-input-shell">
+        <span class="at">@</span>
+        <input id="username-input" type="text" placeholder="usuario-do-github" autocomplete="off" spellcheck="false">
+      </div>
+      <button class="btn primary" id="btn-search">Ver portfólio</button>
+    </div>
+  </div>
+
+  <div id="state-area"></div>
+
+  <div id="content" hidden>
+
+    <div class="profile">
+      <img id="avatar" class="avatar" alt="" width="80" height="80">
+      <div class="profile-info">
+        <p class="profile-name" id="profile-name"></p>
+        <p class="profile-handle" id="profile-handle"></p>
+        <p class="profile-bio" id="profile-bio" hidden></p>
+        <div class="btn-row">
+          <button class="btn" id="btn-sync">↻ Sincronizar com o GitHub</button>
+          <button class="btn primary" id="btn-open-modal">↓ Gerar currículo</button>
+        </div>
+      </div>
+    </div>
+    <p class="footer-note" id="footer-note"></p>
+
+    <div class="section-label">Projetos em destaque</div>
+    <div class="project-grid" id="project-grid"></div>
+
+    <div class="section-label">Gerenciar</div>
+    <details class="manage">
+      <summary>Todos os repositórios sincronizados — escolher destaques</summary>
+      <div class="manage-list" id="manage-list"></div>
+    </details>
+
+  </div>
+</div>
+
+<!-- ---------- Modal: gerar currículo ---------- -->
+<div class="modal-overlay" id="modal-overlay" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-header">
+      <div>
+        <p class="modal-title" id="modal-title">Gerar currículo</p>
+        <p class="modal-subtitle">Preenche seus dados pra gerar um PDF mais completo. Os projetos em destaque do GitHub entram automaticamente.</p>
+      </div>
+      <button class="modal-close" id="modal-close" aria-label="Fechar">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <form id="resume-form">
+
+        <div class="field-group">
+          <label>Foto de perfil</label>
+          <div class="photo-picker">
+            <img id="photo-preview" class="photo-preview" alt="Prévia da foto">
+            <div class="photo-actions">
+              <div class="photo-actions-row">
+                <button type="button" class="photo-btn" id="photo-btn-github">Usar foto do GitHub</button>
+                <label class="photo-btn" for="f-foto-arquivo" id="photo-btn-upload">Enviar outra</label>
+                <button type="button" class="photo-btn" id="photo-btn-nenhuma">Sem foto</button>
+              </div>
+              <input type="file" id="f-foto-arquivo" accept="image/*">
+            </div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="f-nome">Nome completo</label>
+          <input type="text" id="f-nome" placeholder="Seu nome completo">
+        </div>
+
+        <div class="field-row field-group">
+          <div>
+            <label for="f-email">Email</label>
+            <input type="email" id="f-email" placeholder="voce@email.com">
+          </div>
+          <div>
+            <label for="f-telefone">Telefone</label>
+            <input type="tel" id="f-telefone" placeholder="(00) 00000-0000">
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="f-localizacao">Localização</label>
+          <input type="text" id="f-localizacao" placeholder="Cidade, Estado">
+        </div>
+
+        <div class="field-group">
+          <label for="f-resumo">Resumo profissional</label>
+          <textarea id="f-resumo" placeholder="Duas ou três frases sobre você, sua área e seus objetivos."></textarea>
+        </div>
+
+        <p class="form-section-title">Experiência profissional</p>
+        <div id="experiencias-list"></div>
+        <button type="button" class="add-entry-btn" id="add-experiencia">+ Adicionar experiência</button>
+
+        <p class="form-section-title">Formação acadêmica</p>
+        <div id="formacoes-list"></div>
+        <button type="button" class="add-entry-btn" id="add-formacao">+ Adicionar formação</button>
+
+        <p class="form-section-title">Habilidades</p>
+        <div class="field-group">
+          <input type="text" id="f-habilidades" placeholder="Ex: Java, Spring Boot, React, SQL">
+          <p class="hint-small">separadas por vírgula</p>
+        </div>
+
+      </form>
+    </div>
+
+    <div class="modal-footer">
+      <a href="#" id="btn-quick-export" class="btn ghost sm">Pular e gerar rápido</a>
+      <button class="btn primary" id="btn-submit-resume">↓ Gerar PDF</button>
+    </div>
+  </div>
+</div>
+
+<script src="theme.js"></script>
+<script src="auth.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  const API_BASE = "";
+
+  const els = {
+    input: document.getElementById('username-input'),
+    btnSearch: document.getElementById('btn-search'),
+    stateArea: document.getElementById('state-area'),
+    content: document.getElementById('content'),
+    avatar: document.getElementById('avatar'),
+    name: document.getElementById('profile-name'),
+    handle: document.getElementById('profile-handle'),
+    bio: document.getElementById('profile-bio'),
+    btnSync: document.getElementById('btn-sync'),
+    btnOpenModal: document.getElementById('btn-open-modal'),
+    grid: document.getElementById('project-grid'),
+    manageList: document.getElementById('manage-list'),
+    footerNote: document.getElementById('footer-note'),
+
+    modalOverlay: document.getElementById('modal-overlay'),
+    modalClose: document.getElementById('modal-close'),
+    resumeForm: document.getElementById('resume-form'),
+    fNome: document.getElementById('f-nome'),
+    fEmail: document.getElementById('f-email'),
+    fTelefone: document.getElementById('f-telefone'),
+    fLocalizacao: document.getElementById('f-localizacao'),
+    fResumo: document.getElementById('f-resumo'),
+    fHabilidades: document.getElementById('f-habilidades'),
+    experienciasList: document.getElementById('experiencias-list'),
+    addExperiencia: document.getElementById('add-experiencia'),
+    formacoesList: document.getElementById('formacoes-list'),
+    addFormacao: document.getElementById('add-formacao'),
+    btnQuickExport: document.getElementById('btn-quick-export'),
+    btnSubmitResume: document.getElementById('btn-submit-resume'),
+
+    photoPreview: document.getElementById('photo-preview'),
+    photoBtnGithub: document.getElementById('photo-btn-github'),
+    photoBtnUpload: document.getElementById('photo-btn-upload'),
+    photoBtnNenhuma: document.getElementById('photo-btn-nenhuma'),
+    fFotoArquivo: document.getElementById('f-foto-arquivo'),
+  };
+
+  let currentUsername = null;
+  let currentUser = null;
+  let currentAuth = { autenticado: false };
+
+  // foto: 'github' | 'custom' | 'nenhuma'
+  let fotoModo = 'github';
+  let fotoCustomBase64 = null;
+
+  // ---------- dono do perfil ----------
+
+  function souDono(){
+    return !!(currentAuth && currentAuth.autenticado && currentUsername
+      && currentAuth.githubUsername
+      && currentAuth.githubUsername.toLowerCase() === currentUsername.toLowerCase());
+  }
+
+  function atualizarModoDono(){
+    const dono = souDono();
+
+    els.btnSync.hidden = !dono;
+    els.btnOpenModal.hidden = !dono;
+
+    const manageDetails = document.querySelector('details.manage');
+    if (manageDetails) manageDetails.hidden = !dono;
+
+    let aviso = document.getElementById('visitor-note');
+
+    if (!dono && currentUser){
+      if (!aviso){
+        aviso = document.createElement('p');
+        aviso.id = 'visitor-note';
+        aviso.className = 'visitor-note';
+        els.content.insertBefore(aviso, els.content.children[1] || null);
+      }
+      aviso.textContent = currentAuth.autenticado
+        ? 'Você está vendo o portfólio de outra pessoa — só o dono pode gerenciar destaques ou gerar currículo.'
+        : 'Modo visualização. Entre com o GitHub pra gerenciar o seu próprio portfólio.';
+      aviso.hidden = false;
+    } else if (aviso){
+      aviso.hidden = true;
+    }
+  }
+
+  // ---------- helpers ----------
+
+  function shortHash(str){
+    let h = 0;
+    for (let i = 0; i < str.length; i++){ h = (h * 31 + str.charCodeAt(i)) >>> 0; }
+    return h.toString(16).padStart(7, '0').slice(0, 7);
+  }
+
+  function escapeHtml(str){
+    const div = document.createElement('div');
+    div.textContent = str == null ? '' : String(str);
+    return div.innerHTML;
+  }
+
+  function setState(html){ els.stateArea.innerHTML = html; }
+  function clearState(){ els.stateArea.innerHTML = ''; }
+
+  function usernameFromUrl(){ return new URLSearchParams(location.search).get('user'); }
+
+  function pushUrl(username){
+    const url = new URL(location.href);
+    url.searchParams.set('user', username);
+    history.replaceState(null, '', url);
+  }
+
+  // ---------- API ----------
+
+  async function fetchPortfolio(username){
+    const res = await fetch(`${API_BASE}/api/portfolio/${encodeURIComponent(username)}`);
+    if (res.status === 404) return null;
+    if (!res.ok) throw new Error(`Falha ao buscar portfólio (status ${res.status})`);
+    return res.json();
+  }
+
+  async function syncPortfolio(username){
+    const res = await fetch(`${API_BASE}/api/portfolio/sync/${encodeURIComponent(username)}`, { method: 'POST' });
+    if (!res.ok) throw new Error(`Não foi possível sincronizar "${username}". Confira se o usuário existe no GitHub.`);
+    return res.json();
+  }
+
+  async function toggleDestaque(projectId){
+    const res = await fetch(`${API_BASE}/api/portfolio/projects/${projectId}/destaque`, { method: 'PATCH' });
+    if (!res.ok) throw new Error('Não foi possível atualizar o destaque.');
+    return res.json();
+  }
+
+  async function gerarCurriculoCompleto(username, payload){
+    const res = await fetch(`${API_BASE}/api/portfolio/${encodeURIComponent(username)}/curriculo`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error('Não foi possível gerar o PDF. Tenta de novo.');
+    return res.blob();
+  }
+
+  function baixarBlob(blob, nomeArquivo){
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = nomeArquivo;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }
+
+  // ---------- render ----------
+
+  function renderProfile(user){
+    els.avatar.src = user.avatarUrl || '';
+    els.avatar.alt = user.nome || user.githubUsername;
+    els.name.textContent = user.nome || user.githubUsername;
+    els.handle.textContent = '@' + user.githubUsername;
+
+    if (user.bio){ els.bio.textContent = user.bio; els.bio.hidden = false; }
+    else { els.bio.hidden = true; }
+
+    els.btnQuickExport.href = `${API_BASE}/api/portfolio/${encodeURIComponent(user.githubUsername)}/curriculo`;
+
+    const total = (user.projetos || []).length;
+    const destaque = (user.projetos || []).filter(p => p.destaque).length;
+    els.footerNote.textContent = `${total} repositório${total === 1 ? '' : 's'} sincronizado${total === 1 ? '' : 's'} · ${destaque} em destaque no currículo`;
+  }
+
+  function renderGrid(projetos){
+    const destacados = (projetos || []).filter(p => p.destaque);
+
+    if (destacados.length === 0){
+      els.grid.innerHTML = `<p class="grid-empty">Nenhum projeto em destaque ainda — marca alguns na lista "Gerenciar" abaixo.</p>`;
+      return;
+    }
+
+    els.grid.innerHTML = destacados.map(p => `
+      <div class="project-card">
+        <div class="project-top">
+          <p class="project-name"><a href="${escapeHtml(p.urlRepositorio || '#')}" target="_blank" rel="noopener">${escapeHtml(p.nomeRepositorio || 'repositório')}</a></p>
+          <span class="project-hash">${shortHash(p.nomeRepositorio || String(p.id))}</span>
+        </div>
+        ${p.descricao ? `<p class="project-desc">${escapeHtml(p.descricao)}</p>` : '<p class="project-desc"></p>'}
+        <div class="project-stats">
+          ${p.linguagemPrincipal ? `<span class="stat lang">${escapeHtml(p.linguagemPrincipal)}</span>` : ''}
+          <span class="stat stars">★ ${p.stars ?? 0}</span>
+          <span class="stat">+${p.forks ?? 0} forks</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function renderManageList(projetos){
+    const lista = projetos || [];
+    if (lista.length === 0){
+      els.manageList.innerHTML = `<div class="manage-row"><span class="manage-row-name dim">nenhum repositório sincronizado</span></div>`;
+      return;
+    }
+
+    els.manageList.innerHTML = lista.map(p => `
+      <div class="manage-row">
+        <span class="manage-row-name">${escapeHtml(p.nomeRepositorio || '')} <span class="dim">${p.linguagemPrincipal ? '· ' + escapeHtml(p.linguagemPrincipal) : ''}</span></span>
+        <button class="toggle ${p.destaque ? 'on' : ''}" data-project-id="${p.id}" role="switch" aria-checked="${p.destaque ? 'true' : 'false'}" aria-label="Destacar ${escapeHtml(p.nomeRepositorio || '')} no currículo"></button>
+      </div>
+    `).join('');
+
+    els.manageList.querySelectorAll('.toggle').forEach(btn => btn.addEventListener('click', onToggleClick));
+  }
+
+  async function onToggleClick(e){
+    const btn = e.currentTarget;
+    const projectId = btn.getAttribute('data-project-id');
+    btn.disabled = true;
+    try{
+      await toggleDestaque(projectId);
+      await loadAndRender(currentUsername, { showLoading: false });
+    } catch(err){
+      setState(`<div class="error-box">✕ ${escapeHtml(err.message)}</div>`);
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  // ---------- flow ----------
+
+  async function loadAndRender(username, opts){
+    opts = opts || {};
+    if (opts.showLoading !== false){
+      setState(`<div class="loading-line"><span class="spinner" aria-hidden="true"></span> carregando portfólio de <strong>${escapeHtml(username)}</strong>…</div>`);
+      els.content.hidden = true;
+    }
+
+    currentUsername = username;
+
+    try{
+      const user = await fetchPortfolio(username);
+
+      if (!user){
+        const dono = souDono();
+        const acao = dono
+          ? `<button class="btn primary" id="btn-first-sync">↻ Sincronizar agora</button>`
+          : (currentAuth.autenticado
+              ? `<p class="hint-small">Esse usuário ainda não sincronizou o portfólio dele.</p>`
+              : `<p class="hint-small">Se for você, <a href="/oauth2/authorization/github">entre com o GitHub</a> pra sincronizar.</p>`);
+
+        setState(`
+          <div class="empty-box">
+            <p><span class="who">@${escapeHtml(username)}</span> ainda não foi sincronizado.</p>
+            ${acao}
+          </div>
+        `);
+        els.content.hidden = true;
+        const btnFirstSync = document.getElementById('btn-first-sync');
+        if (btnFirstSync) btnFirstSync.addEventListener('click', () => runSync(username));
+        return;
+      }
+
+      currentUser = user;
+      clearState();
+      els.content.hidden = false;
+      renderProfile(user);
+      renderGrid(user.projetos);
+      renderManageList(user.projetos);
+      atualizarModoDono();
+    } catch(err){
+      setState(`<div class="error-box">✕ ${escapeHtml(err.message)}</div>`);
+      els.content.hidden = true;
+    }
+  }
+
+  async function runSync(username){
+    setState(`<div class="loading-line"><span class="spinner" aria-hidden="true"></span> buscando repositórios de <strong>${escapeHtml(username)}</strong> no GitHub…</div>`);
+    try{
+      await syncPortfolio(username);
+      await loadAndRender(username, { showLoading: false });
+    } catch(err){
+      setState(`<div class="error-box">✕ ${escapeHtml(err.message)}</div>`);
+    }
+  }
+
+  function search(){
+    const username = els.input.value.trim();
+    if (!username) return;
+    pushUrl(username);
+    loadAndRender(username);
+  }
+
+  els.btnSearch.addEventListener('click', search);
+  els.input.addEventListener('keydown', (e) => { if (e.key === 'Enter') search(); });
+  els.btnSync.addEventListener('click', () => { if (currentUsername) runSync(currentUsername); });
+
+  // ---------- modal: entries (experiência / formação) ----------
+
+  function criarLinhaExperiencia(){
+    const div = document.createElement('div');
+    div.className = 'entry-card entry-experiencia';
+    div.innerHTML = `
+      <button type="button" class="entry-remove" aria-label="Remover experiência">✕ remover</button>
+      <div class="field-row field-group">
+        <div><label>Cargo</label><input type="text" class="exp-cargo" placeholder="Ex: Desenvolvedor Backend"></div>
+        <div><label>Empresa</label><input type="text" class="exp-empresa" placeholder="Ex: Acme Inc."></div>
+      </div>
+      <div class="field-group"><label>Período</label><input type="text" class="exp-periodo" placeholder="Ex: Jan 2023 — atual"></div>
+      <div><label>Descrição</label><textarea class="exp-descricao" placeholder="O que você fez, principais entregas."></textarea></div>
+    `;
+    div.querySelector('.entry-remove').addEventListener('click', () => div.remove());
+    return div;
+  }
+
+  function criarLinhaFormacao(){
+    const div = document.createElement('div');
+    div.className = 'entry-card entry-formacao';
+    div.innerHTML = `
+      <button type="button" class="entry-remove" aria-label="Remover formação">✕ remover</button>
+      <div class="field-row field-group">
+        <div><label>Curso</label><input type="text" class="form-curso" placeholder="Ex: Ciência da Computação"></div>
+        <div><label>Instituição</label><input type="text" class="form-instituicao" placeholder="Ex: Nome da faculdade"></div>
+      </div>
+      <div><label>Período</label><input type="text" class="form-periodo" placeholder="Ex: 2022 — 2026 (cursando)"></div>
+    `;
+    div.querySelector('.entry-remove').addEventListener('click', () => div.remove());
+    return div;
+  }
+
+  els.addExperiencia.addEventListener('click', () => els.experienciasList.appendChild(criarLinhaExperiencia()));
+  els.addFormacao.addEventListener('click', () => els.formacoesList.appendChild(criarLinhaFormacao()));
+
+  // ---------- modal: foto de perfil ----------
+
+  function atualizarPreviewFoto(){
+    els.photoBtnGithub.classList.toggle('active', fotoModo === 'github');
+    els.photoBtnNenhuma.classList.toggle('active', fotoModo === 'nenhuma');
+
+    if (fotoModo === 'github' && currentUser && currentUser.avatarUrl){
+      els.photoPreview.src = currentUser.avatarUrl;
+      els.photoPreview.classList.remove('empty');
+      els.photoPreview.hidden = false;
+    } else if (fotoModo === 'custom' && fotoCustomBase64){
+      els.photoPreview.src = fotoCustomBase64;
+      els.photoPreview.classList.remove('empty');
+      els.photoPreview.hidden = false;
+    } else {
+      els.photoPreview.src = '';
+      els.photoPreview.hidden = true;
+    }
+  }
+
+  els.photoBtnGithub.addEventListener('click', () => {
+    fotoModo = 'github';
+    atualizarPreviewFoto();
+  });
+
+  els.photoBtnNenhuma.addEventListener('click', () => {
+    fotoModo = 'nenhuma';
+    fotoCustomBase64 = null;
+    els.fFotoArquivo.value = '';
+    atualizarPreviewFoto();
+  });
+
+  els.fFotoArquivo.addEventListener('change', () => {
+    const file = els.fFotoArquivo.files[0];
+    if (!file) return;
+
+    if (file.size > 3 * 1024 * 1024){
+      alert('Essa imagem é grande demais. Escolhe uma foto com menos de 3MB.');
+      els.fFotoArquivo.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      fotoCustomBase64 = reader.result;
+      fotoModo = 'custom';
+      atualizarPreviewFoto();
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // ---------- modal: open / close ----------
+
+  function abrirModal(){
+    if (!currentUser) return;
+
+    els.experienciasList.innerHTML = '';
+    els.formacoesList.innerHTML = '';
+    els.experienciasList.appendChild(criarLinhaExperiencia());
+    els.formacoesList.appendChild(criarLinhaFormacao());
+
+    els.fNome.value = currentUser.nome || '';
+    els.fEmail.value = '';
+    els.fTelefone.value = '';
+    els.fLocalizacao.value = '';
+    els.fResumo.value = currentUser.bio || '';
+    els.fHabilidades.value = '';
+
+    fotoModo = currentUser.avatarUrl ? 'github' : 'nenhuma';
+    fotoCustomBase64 = null;
+    els.fFotoArquivo.value = '';
+    atualizarPreviewFoto();
+
+    els.modalOverlay.hidden = false;
+    document.body.style.overflow = 'hidden';
+    els.fNome.focus();
+  }
+
+  function fecharModal(){
+    els.modalOverlay.hidden = true;
+    document.body.style.overflow = '';
+  }
+
+  els.btnOpenModal.addEventListener('click', abrirModal);
+  els.modalClose.addEventListener('click', fecharModal);
+  els.modalOverlay.addEventListener('click', (e) => { if (e.target === els.modalOverlay) fecharModal(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !els.modalOverlay.hidden) fecharModal(); });
+
+  // ---------- modal: submit ----------
+
+  function coletarExperiencias(){
+    return Array.from(els.experienciasList.querySelectorAll('.entry-experiencia')).map(el => ({
+      cargo: el.querySelector('.exp-cargo').value.trim(),
+      empresa: el.querySelector('.exp-empresa').value.trim(),
+      periodo: el.querySelector('.exp-periodo').value.trim(),
+      descricao: el.querySelector('.exp-descricao').value.trim(),
+    })).filter(e => e.cargo || e.empresa || e.descricao);
+  }
+
+  function coletarFormacoes(){
+    return Array.from(els.formacoesList.querySelectorAll('.entry-formacao')).map(el => ({
+      curso: el.querySelector('.form-curso').value.trim(),
+      instituicao: el.querySelector('.form-instituicao').value.trim(),
+      periodo: el.querySelector('.form-periodo').value.trim(),
+    })).filter(f => f.curso || f.instituicao);
+  }
+
+  function coletarHabilidades(){
+    return els.fHabilidades.value.split(',').map(s => s.trim()).filter(Boolean);
+  }
+
+  els.btnSubmitResume.addEventListener('click', async () => {
+    if (!currentUsername) return;
+
+    const payload = {
+      nomeCompleto: els.fNome.value.trim(),
+      email: els.fEmail.value.trim(),
+      telefone: els.fTelefone.value.trim(),
+      localizacao: els.fLocalizacao.value.trim(),
+      resumo: els.fResumo.value.trim(),
+      experiencias: coletarExperiencias(),
+      formacoes: coletarFormacoes(),
+      habilidades: coletarHabilidades(),
+      usarFotoGithub: fotoModo === 'github',
+      fotoBase64: fotoModo === 'custom' ? fotoCustomBase64 : null,
+    };
+
+    els.btnSubmitResume.disabled = true;
+    els.btnSubmitResume.textContent = 'Gerando…';
+
+    try{
+      const blob = await gerarCurriculoCompleto(currentUsername, payload);
+      baixarBlob(blob, 'curriculo.pdf');
+      fecharModal();
+    } catch(err){
+      alert(err.message);
+    } finally {
+      els.btnSubmitResume.disabled = false;
+      els.btnSubmitResume.textContent = '↓ Gerar PDF';
+    }
+  });
+
+  // ---------- boot ----------
+
+  async function boot(){
+    try{
+      currentAuth = await fetch(`${API_BASE}/api/auth/me`).then(r => r.json());
+    } catch(e){
+      currentAuth = { autenticado: false };
+    }
+
+    const initial = usernameFromUrl();
+    if (initial){
+      els.input.value = initial;
+      await loadAndRender(initial);
+    }
+  }
+
+  boot();
+
+})();
+</script>
+
+</body>
+</html>
