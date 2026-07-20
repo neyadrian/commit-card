@@ -22,7 +22,7 @@ public class Project {
     private String descricao;
 
     private String linguagemPrincipal;
-    private Integer estrelas;
+    private Integer stars;
     private Integer forks;
     private String urlRepositorio;
     private boolean destaque;
@@ -35,7 +35,7 @@ public class Project {
         this.nomeRepositorio = nomeRepositorio;
         this.urlRepositorio = urlRepositorio;
         this.user = user;
-        this.estrelas = 0;
+        this.stars = 0;
         this.forks = 0;
         this.destaque = false;
     }
