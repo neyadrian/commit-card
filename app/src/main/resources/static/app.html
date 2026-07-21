@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Commit Card — seu portfólio</title>
 <link rel="icon" type="image/svg+xml" href="logo.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -55,6 +57,16 @@
   .profile-handle{ font-family: var(--mono); font-size: 13px; color: var(--accent); margin: 0 0 12px; }
   .profile-bio{ font-size: 14.5px; color: var(--text-dim); margin: 0 0 16px; max-width: 56ch; }
 
+  #linkedin-area{ margin: 0 0 12px; }
+  #linkedin-area .entry-card{ max-width: 360px; margin-top: 8px; }
+  .linkedin-link{
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 500; color: var(--text-dim);
+    border: 1px solid var(--border-strong); border-radius: 999px;
+    padding: 4px 12px 4px 10px;
+  }
+  .linkedin-link:hover{ color: var(--accent); border-color: var(--accent); text-decoration: none; }
+
   /* ---------- Project grid ---------- */
   .project-grid{ display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
   @media (max-width: 640px){ .project-grid{ grid-template-columns: 1fr; } }
@@ -81,6 +93,25 @@
   .stat.lang::before{ content:''; width: 8px; height: 8px; border-radius: 50%; background: var(--violet); display:inline-block; }
   .stat.stars{ color: var(--amber); }
   .grid-empty{ font-size: 13.5px; color: var(--text-faint); grid-column: 1 / -1; }
+
+  /* ---------- Certificados ---------- */
+  .cert-grid{ display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 14px; }
+  @media (max-width: 640px){ .cert-grid{ grid-template-columns: 1fr; } }
+  .cert-grid:empty{ margin-bottom: 0; }
+
+  .cert-card{
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 16px 18px; position: relative;
+  }
+  .cert-title{ font-family: var(--display); font-size: 14.5px; font-weight: 700; margin: 0 0 4px; padding-right: 20px; }
+  .cert-meta{ font-size: 13px; color: var(--text-dim); margin: 0; }
+  .cert-date{ font-family: var(--mono); font-size: 11.5px; color: var(--text-faint); margin: 6px 0 0; }
+  .cert-link{ font-size: 12.5px; margin-top: 6px; display: inline-block; }
+  .cert-remove{
+    position: absolute; top: 12px; right: 12px; background: none; border: none;
+    color: var(--text-faint); cursor: pointer; font-size: 13px; line-height: 1; padding: 2px;
+  }
+  .cert-remove:hover{ color: var(--danger); }
 
   /* ---------- Manage list ---------- */
   details.manage{ border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-elevated); overflow: hidden; }
@@ -252,6 +283,26 @@
       <div class="profile-info">
         <p class="profile-name" id="profile-name"></p>
         <p class="profile-handle" id="profile-handle"></p>
+
+        <div id="linkedin-area">
+          <a class="linkedin-link" id="linkedin-link" href="#" target="_blank" rel="noopener" hidden>
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.38-1.85 3.6 0 4.27 2.37 4.27 5.46zM5.34 7.43a2.07 2.07 0 1 1 0-4.13 2.07 2.07 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56z"/></svg>
+            LinkedIn
+          </a>
+          <button type="button" class="btn ghost sm" id="btn-edit-linkedin" hidden>✎ editar</button>
+          <button type="button" class="btn ghost sm" id="btn-add-linkedin" hidden>+ Adicionar LinkedIn</button>
+          <div class="entry-card" id="linkedin-form" hidden>
+            <div class="field-group">
+              <label for="linkedin-input">URL do LinkedIn</label>
+              <input type="text" id="linkedin-input" placeholder="https://www.linkedin.com/in/seu-perfil">
+            </div>
+            <div class="btn-row">
+              <button type="button" class="btn primary sm" id="btn-save-linkedin">Salvar</button>
+              <button type="button" class="btn ghost sm" id="btn-cancel-linkedin">Cancelar</button>
+            </div>
+          </div>
+        </div>
+
         <p class="profile-bio" id="profile-bio" hidden></p>
         <div class="btn-row">
           <button class="btn" id="btn-sync">↻ Sincronizar com o GitHub</button>
@@ -263,6 +314,26 @@
 
     <div class="section-label">Projetos em destaque</div>
     <div class="project-grid" id="project-grid"></div>
+
+    <div class="section-label" id="cert-section-label" hidden>Certificados e prêmios</div>
+    <div class="cert-grid" id="cert-grid"></div>
+    <div id="cert-add-area" hidden>
+      <button type="button" class="add-entry-btn" id="btn-show-cert-form">+ Adicionar certificado</button>
+      <div class="entry-card" id="cert-form" hidden>
+        <div class="field-row field-group">
+          <div><label for="cert-titulo">Título</label><input type="text" id="cert-titulo" placeholder="Ex: AWS Certified Cloud Practitioner"></div>
+          <div><label for="cert-instituicao">Instituição</label><input type="text" id="cert-instituicao" placeholder="Ex: Amazon Web Services"></div>
+        </div>
+        <div class="field-row field-group">
+          <div><label for="cert-data">Data</label><input type="text" id="cert-data" placeholder="Ex: Março 2026"></div>
+          <div><label for="cert-link">Link da credencial (opcional)</label><input type="text" id="cert-link" placeholder="https://..."></div>
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn primary sm" id="btn-save-cert">Salvar</button>
+          <button type="button" class="btn ghost sm" id="btn-cancel-cert">Cancelar</button>
+        </div>
+      </div>
+    </div>
 
     <div class="section-label">Gerenciar</div>
     <details class="manage">
@@ -369,10 +440,30 @@
     name: document.getElementById('profile-name'),
     handle: document.getElementById('profile-handle'),
     bio: document.getElementById('profile-bio'),
+
+    linkedinLink: document.getElementById('linkedin-link'),
+    btnEditLinkedin: document.getElementById('btn-edit-linkedin'),
+    btnAddLinkedin: document.getElementById('btn-add-linkedin'),
+    linkedinForm: document.getElementById('linkedin-form'),
+    linkedinInput: document.getElementById('linkedin-input'),
+    btnSaveLinkedin: document.getElementById('btn-save-linkedin'),
+    btnCancelLinkedin: document.getElementById('btn-cancel-linkedin'),
     btnSync: document.getElementById('btn-sync'),
     btnOpenModal: document.getElementById('btn-open-modal'),
     grid: document.getElementById('project-grid'),
     manageList: document.getElementById('manage-list'),
+
+    certSectionLabel: document.getElementById('cert-section-label'),
+    certGrid: document.getElementById('cert-grid'),
+    certAddArea: document.getElementById('cert-add-area'),
+    btnShowCertForm: document.getElementById('btn-show-cert-form'),
+    certForm: document.getElementById('cert-form'),
+    certTitulo: document.getElementById('cert-titulo'),
+    certInstituicao: document.getElementById('cert-instituicao'),
+    certData: document.getElementById('cert-data'),
+    certLink: document.getElementById('cert-link'),
+    btnSaveCert: document.getElementById('btn-save-cert'),
+    btnCancelCert: document.getElementById('btn-cancel-cert'),
     footerNote: document.getElementById('footer-note'),
 
     modalOverlay: document.getElementById('modal-overlay'),
@@ -419,6 +510,7 @@
 
     els.btnSync.hidden = !dono;
     els.btnOpenModal.hidden = !dono;
+    els.certAddArea.hidden = !dono;
 
     const manageDetails = document.querySelector('details.manage');
     if (manageDetails) manageDetails.hidden = !dono;
@@ -475,22 +567,70 @@
     return res.json();
   }
 
+  // Lê o cookie XSRF-TOKEN que o Spring Security manda, pra devolver no header
+  // X-XSRF-TOKEN em toda requisição que muda dado (proteção contra CSRF).
+  function getCsrfToken(){
+    const match = document.cookie.match(/(?:^|;\s*)XSRF-TOKEN=([^;]+)/);
+    return match ? decodeURIComponent(match[1]) : null;
+  }
+
+  function csrfHeaders(extra){
+    const headers = Object.assign({}, extra || {});
+    const token = getCsrfToken();
+    if (token) headers['X-XSRF-TOKEN'] = token;
+    return headers;
+  }
+
   async function syncPortfolio(username){
-    const res = await fetch(`${API_BASE}/api/portfolio/sync/${encodeURIComponent(username)}`, { method: 'POST' });
+    const res = await fetch(`${API_BASE}/api/portfolio/sync/${encodeURIComponent(username)}`, {
+      method: 'POST',
+      headers: csrfHeaders()
+    });
     if (!res.ok) throw new Error(`Não foi possível sincronizar "${username}". Confira se o usuário existe no GitHub.`);
     return res.json();
   }
 
   async function toggleDestaque(projectId){
-    const res = await fetch(`${API_BASE}/api/portfolio/projects/${projectId}/destaque`, { method: 'PATCH' });
+    const res = await fetch(`${API_BASE}/api/portfolio/projects/${projectId}/destaque`, {
+      method: 'PATCH',
+      headers: csrfHeaders()
+    });
     if (!res.ok) throw new Error('Não foi possível atualizar o destaque.');
+    return res.json();
+  }
+
+  async function adicionarCertificado(username, payload){
+    const res = await fetch(`${API_BASE}/api/portfolio/${encodeURIComponent(username)}/certificados`, {
+      method: 'POST',
+      headers: csrfHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error('Não foi possível adicionar o certificado.');
+    return res.json();
+  }
+
+  async function removerCertificado(id){
+    const res = await fetch(`${API_BASE}/api/portfolio/certificados/${id}`, {
+      method: 'DELETE',
+      headers: csrfHeaders()
+    });
+    if (!res.ok) throw new Error('Não foi possível remover o certificado.');
+  }
+
+  async function atualizarLinkedin(username, linkedinUrl){
+    const res = await fetch(`${API_BASE}/api/portfolio/${encodeURIComponent(username)}/linkedin`, {
+      method: 'PATCH',
+      headers: csrfHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ linkedinUrl })
+    });
+    if (!res.ok) throw new Error('Não foi possível salvar o LinkedIn.');
     return res.json();
   }
 
   async function gerarCurriculoCompleto(username, payload){
     const res = await fetch(`${API_BASE}/api/portfolio/${encodeURIComponent(username)}/curriculo`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: csrfHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(payload)
     });
     if (!res.ok) throw new Error('Não foi possível gerar o PDF. Tenta de novo.');
@@ -567,6 +707,139 @@
     els.manageList.querySelectorAll('.toggle').forEach(btn => btn.addEventListener('click', onToggleClick));
   }
 
+  function renderCertificados(certificados, dono){
+    const lista = certificados || [];
+
+    if (lista.length === 0 && !dono){
+      els.certSectionLabel.hidden = true;
+      els.certGrid.innerHTML = '';
+      return;
+    }
+
+    els.certSectionLabel.hidden = false;
+
+    if (lista.length === 0){
+      els.certGrid.innerHTML = '';
+    } else {
+      els.certGrid.innerHTML = lista.map(c => `
+        <div class="cert-card">
+          ${dono ? `<button class="cert-remove" data-cert-id="${c.id}" aria-label="Remover certificado">✕</button>` : ''}
+          <p class="cert-title">${escapeHtml(c.titulo || '')}</p>
+          ${c.instituicao ? `<p class="cert-meta">${escapeHtml(c.instituicao)}</p>` : ''}
+          ${c.data ? `<p class="cert-date">${escapeHtml(c.data)}</p>` : ''}
+          ${c.linkCredencial ? `<a class="cert-link" href="${escapeHtml(c.linkCredencial)}" target="_blank" rel="noopener">Ver credencial →</a>` : ''}
+        </div>
+      `).join('');
+
+      els.certGrid.querySelectorAll('.cert-remove').forEach(btn => btn.addEventListener('click', onRemoveCertClick));
+    }
+  }
+
+  async function onRemoveCertClick(e){
+    const btn = e.currentTarget;
+    const certId = btn.getAttribute('data-cert-id');
+    btn.disabled = true;
+    try{
+      await removerCertificado(certId);
+      await loadAndRender(currentUsername, { showLoading: false });
+    } catch(err){
+      setState(`<div class="error-box">✕ ${escapeHtml(err.message)}</div>`);
+    }
+  }
+
+  els.btnShowCertForm.addEventListener('click', () => {
+    els.certForm.hidden = false;
+    els.btnShowCertForm.hidden = true;
+    els.certTitulo.focus();
+  });
+
+  els.btnCancelCert.addEventListener('click', () => {
+    els.certForm.hidden = true;
+    els.btnShowCertForm.hidden = false;
+    els.certTitulo.value = '';
+    els.certInstituicao.value = '';
+    els.certData.value = '';
+    els.certLink.value = '';
+  });
+
+  els.btnSaveCert.addEventListener('click', async () => {
+    if (!currentUsername) return;
+
+    const titulo = els.certTitulo.value.trim();
+    if (!titulo){
+      els.certTitulo.focus();
+      return;
+    }
+
+    const payload = {
+      titulo,
+      instituicao: els.certInstituicao.value.trim(),
+      data: els.certData.value.trim(),
+      linkCredencial: els.certLink.value.trim(),
+    };
+
+    els.btnSaveCert.disabled = true;
+    try{
+      await adicionarCertificado(currentUsername, payload);
+      els.btnCancelCert.click();
+      await loadAndRender(currentUsername, { showLoading: false });
+    } catch(err){
+      setState(`<div class="error-box">✕ ${escapeHtml(err.message)}</div>`);
+    } finally {
+      els.btnSaveCert.disabled = false;
+    }
+  });
+
+  // ---------- LinkedIn ----------
+
+  function renderLinkedin(user, dono){
+    const url = (user && user.linkedinUrl) ? user.linkedinUrl.trim() : '';
+
+    els.linkedinForm.hidden = true;
+
+    if (url){
+      els.linkedinLink.href = url;
+      els.linkedinLink.hidden = false;
+      els.btnEditLinkedin.hidden = !dono;
+      els.btnAddLinkedin.hidden = true;
+    } else {
+      els.linkedinLink.hidden = true;
+      els.btnEditLinkedin.hidden = true;
+      els.btnAddLinkedin.hidden = !dono;
+    }
+  }
+
+  function abrirFormularioLinkedin(){
+    els.linkedinInput.value = (currentUser && currentUser.linkedinUrl) ? currentUser.linkedinUrl : '';
+    els.linkedinForm.hidden = false;
+    els.btnAddLinkedin.hidden = true;
+    els.btnEditLinkedin.hidden = true;
+    els.linkedinInput.focus();
+  }
+
+  els.btnAddLinkedin.addEventListener('click', abrirFormularioLinkedin);
+  els.btnEditLinkedin.addEventListener('click', abrirFormularioLinkedin);
+
+  els.btnCancelLinkedin.addEventListener('click', () => {
+    els.linkedinForm.hidden = true;
+    renderLinkedin(currentUser, souDono());
+  });
+
+  els.btnSaveLinkedin.addEventListener('click', async () => {
+    if (!currentUsername) return;
+
+    els.btnSaveLinkedin.disabled = true;
+    try{
+      const url = els.linkedinInput.value.trim();
+      await atualizarLinkedin(currentUsername, url);
+      await loadAndRender(currentUsername, { showLoading: false });
+    } catch(err){
+      setState(`<div class="error-box">✕ ${escapeHtml(err.message)}</div>`);
+    } finally {
+      els.btnSaveLinkedin.disabled = false;
+    }
+  });
+
   async function onToggleClick(e){
     const btn = e.currentTarget;
     const projectId = btn.getAttribute('data-project-id');
@@ -621,6 +894,8 @@
       renderProfile(user);
       renderGrid(user.projetos);
       renderManageList(user.projetos);
+      renderCertificados(user.certificados, souDono());
+      renderLinkedin(user, souDono());
       atualizarModoDono();
     } catch(err){
       setState(`<div class="error-box">✕ ${escapeHtml(err.message)}</div>`);
@@ -836,7 +1111,10 @@
       currentAuth = { autenticado: false };
     }
 
-    const initial = usernameFromUrl();
+    // Se não veio um username na URL mas a pessoa está logada, já mostra o portfólio dela —
+    // não faz sentido pedir pra ela digitar o próprio usuário de novo.
+    const initial = usernameFromUrl() || (currentAuth.autenticado ? currentAuth.githubUsername : null);
+
     if (initial){
       els.input.value = initial;
       await loadAndRender(initial);

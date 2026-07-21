@@ -1,6 +1,7 @@
 package com.commitcard.app.service;
 
 import com.commitcard.app.dto.CurriculoRequestDTO;
+import com.commitcard.app.model.Certificado;
 import com.commitcard.app.model.Project;
 import com.commitcard.app.model.User;
 import com.lowagie.text.*;
@@ -44,7 +45,11 @@ public class CurriculumPdfService {
             document.add(new Paragraph(user.getNome(), fonteNome));
 
             Font fonteContato = new Font(Font.HELVETICA, 10, Font.NORMAL, COR_TEXTO_SUAVE);
-            Paragraph contato = new Paragraph("github.com/" + user.getGithubUsername(), fonteContato);
+            StringBuilder linhaContatoSimples = new StringBuilder("github.com/" + user.getGithubUsername());
+            if (temTexto(user.getLinkedinUrl())) {
+                linhaContatoSimples.append("   ·   ").append(user.getLinkedinUrl());
+            }
+            Paragraph contato = new Paragraph(linhaContatoSimples.toString(), fonteContato);
             contato.setSpacingBefore(4);
             document.add(contato);
 
@@ -59,6 +64,11 @@ public class CurriculumPdfService {
             adicionarTituloSecao(document, "PROJETOS EM DESTAQUE");
             adicionarSecaoProjetos(document, user.getProjetos());
 
+            if (user.getCertificados() != null && !user.getCertificados().isEmpty()) {
+                adicionarTituloSecao(document, "CERTIFICADOS E PRÊMIOS");
+                adicionarSecaoCertificados(document, user.getCertificados());
+            }
+
             document.close();
         } catch (DocumentException e) {
             throw new RuntimeException("Erro ao gerar PDF", e);
@@ -69,7 +79,8 @@ public class CurriculumPdfService {
 
     /**
      * Versão completa: combina os dados preenchidos no formulário (contato, resumo,
-     * experiências, formação, habilidades, foto) com os projetos em destaque do GitHub.
+     * experiências, formação, habilidades, foto) com os projetos em destaque e os
+     * certificados do GitHub.
      */
     public byte[] gerarPdfCompleto(User user, CurriculoRequestDTO dados) {
         Document document = new Document(PageSize.A4, 48, 48, 50, 50);
@@ -118,6 +129,11 @@ public class CurriculumPdfService {
                 Paragraph habilidades = new Paragraph(habilidadesTexto, fonteHabilidades);
                 habilidades.setSpacingAfter(6);
                 document.add(habilidades);
+            }
+
+            if (user.getCertificados() != null && !user.getCertificados().isEmpty()) {
+                adicionarTituloSecao(document, "CERTIFICADOS E PRÊMIOS");
+                adicionarSecaoCertificados(document, user.getCertificados());
             }
 
             adicionarTituloSecao(document, "PROJETOS EM DESTAQUE (GITHUB)");
@@ -217,6 +233,7 @@ public class CurriculumPdfService {
             adicionarSeparadoSePresente(sb, dados.getLocalizacao());
         }
         adicionarSeparadoSePresente(sb, "github.com/" + user.getGithubUsername());
+        adicionarSeparadoSePresente(sb, user.getLinkedinUrl());
         return sb.toString();
     }
 
@@ -306,6 +323,30 @@ public class CurriculumPdfService {
             Paragraph paragrafoMeta = new Paragraph(meta, fonteMeta);
             paragrafoMeta.setSpacingBefore(2);
             document.add(paragrafoMeta);
+        }
+    }
+
+    private void adicionarSecaoCertificados(Document document, List<Certificado> certificados) throws DocumentException {
+        if (certificados == null) return;
+
+        for (Certificado certificado : certificados) {
+            Font fonteTitulo = new Font(Font.HELVETICA, 12, Font.BOLD, COR_TEXTO);
+            Paragraph titulo = new Paragraph(certificado.getTitulo(), fonteTitulo);
+            titulo.setSpacingBefore(6);
+            document.add(titulo);
+
+            String linhaSecundaria = juntarComTraco(certificado.getInstituicao(), certificado.getData());
+            if (temTexto(linhaSecundaria)) {
+                Font fonteSecundaria = new Font(Font.HELVETICA, 10, Font.NORMAL, COR_TEXTO_SUAVE);
+                document.add(new Paragraph(linhaSecundaria, fonteSecundaria));
+            }
+
+            if (temTexto(certificado.getLinkCredencial())) {
+                Font fonteLink = new Font(Font.HELVETICA, 9.5f, Font.NORMAL, COR_ACCENT);
+                Paragraph link = new Paragraph(certificado.getLinkCredencial(), fonteLink);
+                link.setSpacingBefore(2);
+                document.add(link);
+            }
         }
     }
 }

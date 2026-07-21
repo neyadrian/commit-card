@@ -6,11 +6,80 @@
 <title>Commit Card — seu histórico de commits, transformado em portfólio</title>
 <meta name="description" content="Cole seu usuário do GitHub e gere um portfólio compartilhável e um currículo em PDF a partir dos seus repositórios reais.">
 <link rel="icon" type="image/svg+xml" href="logo.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 <style>
+  /* ---------- Animação de entrada da logo (grafo de commit se desenhando) ---------- */
+  #logo-anim .logo-rect{
+    transform-origin: center;
+    transform-box: fill-box;
+    opacity: 0;
+    animation: logoRectIn .4s ease-out forwards;
+  }
+  #logo-anim .logo-line{
+    stroke-dasharray: 24;
+    stroke-dashoffset: 24;
+    animation: logoDraw .35s ease-out forwards;
+  }
+  #logo-anim .logo-line-1{ animation-delay: .15s; }
+  #logo-anim .logo-line-2{ animation-delay: .5s; }
+  #logo-anim .logo-line-3{ animation-delay: .5s; }
+  #logo-anim .logo-dot{
+    transform-origin: center;
+    transform-box: fill-box;
+    transform: scale(0);
+    animation: logoDotIn .3s cubic-bezier(.34,1.56,.64,1) forwards;
+  }
+  #logo-anim .logo-dot-a{ animation-delay: .5s; }
+  #logo-anim .logo-dot-b{ animation-delay: .5s; }
+  #logo-anim .logo-dot-d{ animation-delay: .85s; }
+  #logo-anim .logo-dot-c{ animation-delay: .85s; }
+
+  @keyframes logoRectIn{ from{ opacity:0; transform: scale(.7); } to{ opacity:1; transform: scale(1); } }
+  @keyframes logoDraw{ to{ stroke-dashoffset: 0; } }
+  @keyframes logoDotIn{ to{ transform: scale(1); } }
+
+  @media (prefers-reduced-motion: reduce){
+    #logo-anim .logo-rect, #logo-anim .logo-line, #logo-anim .logo-dot{
+      animation: none !important;
+      opacity: 1 !important;
+      stroke-dashoffset: 0 !important;
+      transform: none !important;
+    }
+  }
+
+  /* ---------- Entrada em sequência do hero ---------- */
+  .hero-anim{
+    opacity: 0;
+    transform: translateY(14px);
+    animation: heroFadeUp .5s ease-out forwards;
+  }
+  .hero-eyebrow.hero-anim{ animation-delay: .05s; }
+  .hero h1.hero-anim{ animation-delay: .15s; }
+  .hero-sub.hero-anim{ animation-delay: .28s; }
+  .hero-form.hero-anim{ animation-delay: .4s; }
+  .hero-example.hero-anim{ animation-delay: .5s; }
+  .mockup-shell.hero-anim{ animation-delay: .58s; }
+
+  @keyframes heroFadeUp{ to{ opacity: 1; transform: translateY(0); } }
+
+  /* ---------- Revelar ao rolar (steps, features, cta) ---------- */
+  .reveal{
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity .5s ease, transform .5s ease;
+  }
+  .reveal.visible{ opacity: 1; transform: translateY(0); }
+
+  @media (prefers-reduced-motion: reduce){
+    .hero-anim{ animation: none !important; opacity: 1 !important; transform: none !important; }
+    .reveal{ transition: none !important; opacity: 1 !important; transform: none !important; }
+  }
+
   .wrap{ max-width: 1080px; margin: 0 auto; padding: 0 24px; }
 
   .hero{
@@ -136,15 +205,15 @@
 <nav class="navbar">
   <div class="nav-left">
     <a class="brand" href="index.html" style="text-decoration:none;">
-      <svg width="28" height="28" viewBox="0 0 64 64" fill="none" aria-hidden="true">
-        <rect x="4" y="4" width="56" height="56" rx="16" fill="var(--bg-input)" stroke="var(--accent)" stroke-width="2.5"/>
-        <path d="M22 48V32" stroke="var(--accent)" stroke-width="4" stroke-linecap="round"/>
-        <path d="M22 32V17" stroke="var(--accent)" stroke-width="4" stroke-linecap="round"/>
-        <path d="M22 32L37 20" stroke="var(--accent)" stroke-width="4" stroke-linecap="round"/>
-        <circle cx="22" cy="48" r="3.6" fill="var(--bg-input)" stroke="var(--accent)" stroke-width="2.6"/>
-        <circle cx="22" cy="32" r="3.6" fill="var(--accent)"/>
-        <circle cx="22" cy="17" r="3.6" fill="var(--bg-input)" stroke="var(--accent)" stroke-width="2.6"/>
-        <circle cx="37" cy="20" r="3.6" fill="var(--bg-input)" stroke="var(--accent)" stroke-width="2.6"/>
+      <svg id="logo-anim" width="28" height="28" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+        <rect class="logo-rect" x="4" y="4" width="56" height="56" rx="16" fill="var(--bg-input)" stroke="var(--accent)" stroke-width="2.5"/>
+        <path class="logo-line logo-line-1" d="M22 48V32" stroke="var(--accent)" stroke-width="4" stroke-linecap="round"/>
+        <path class="logo-line logo-line-2" d="M22 32V17" stroke="var(--accent)" stroke-width="4" stroke-linecap="round"/>
+        <path class="logo-line logo-line-3" d="M22 32L37 20" stroke="var(--accent)" stroke-width="4" stroke-linecap="round"/>
+        <circle class="logo-dot logo-dot-a" cx="22" cy="48" r="3.6" fill="var(--bg-input)" stroke="var(--accent)" stroke-width="2.6"/>
+        <circle class="logo-dot logo-dot-b" cx="22" cy="32" r="3.6" fill="var(--accent)"/>
+        <circle class="logo-dot logo-dot-d" cx="22" cy="17" r="3.6" fill="var(--bg-input)" stroke="var(--accent)" stroke-width="2.6"/>
+        <circle class="logo-dot logo-dot-c" cx="37" cy="20" r="3.6" fill="var(--bg-input)" stroke="var(--accent)" stroke-width="2.6"/>
       </svg>
       <span class="brand-name">commitcard</span>
     </a>
@@ -166,11 +235,11 @@
 <main>
 
   <section class="hero">
-    <p class="hero-eyebrow">de graça, direto do seu github</p>
-    <h1>Seu histórico de commits,<br>transformado em <span class="accent">portfólio</span></h1>
-    <p class="hero-sub">Cola seu usuário do GitHub. O commitcard sincroniza seus repositórios, você escolhe os projetos em destaque, e pronto: um link pra compartilhar e um currículo em PDF pra baixar.</p>
+    <p class="hero-eyebrow hero-anim">de graça, direto do seu github</p>
+    <h1 class="hero-anim">Seu histórico de commits,<br>transformado em <span class="accent">portfólio</span></h1>
+    <p class="hero-sub hero-anim">Cola seu usuário do GitHub. O commitcard sincroniza seus repositórios, você escolhe os projetos em destaque, e pronto: um link pra compartilhar e um currículo em PDF pra baixar.</p>
 
-    <form class="hero-form" id="hero-form">
+    <form class="hero-form hero-anim" id="hero-form">
       <div class="hero-search-row">
         <div class="hero-search-shell">
           <span class="at">@</span>
@@ -179,9 +248,9 @@
         <button type="submit" class="btn primary">Gerar meu portfólio</button>
       </div>
     </form>
-    <p class="hero-example">sem cadastro · <a href="app.html?user=neyadrian">ver um exemplo</a></p>
+    <p class="hero-example hero-anim">criado a partir de dados reais do seu github</p>
 
-    <div class="mockup-shell" aria-hidden="true">
+    <div class="mockup-shell hero-anim" aria-hidden="true">
       <div class="mockup-bar">
         <span class="mockup-dot"></span><span class="mockup-dot"></span><span class="mockup-dot"></span>
       </div>
@@ -224,17 +293,17 @@
         <p>Três passos, sem configuração, sem digitar nada além do seu usuário.</p>
       </div>
       <div class="steps-grid">
-        <div class="step-card">
+        <div class="step-card reveal">
           <div class="step-num">1</div>
           <h3>Conecte seu GitHub</h3>
           <p>Digite seu usuário. O commitcard busca seus repositórios públicos automaticamente pela API do GitHub.</p>
         </div>
-        <div class="step-card">
+        <div class="step-card reveal">
           <div class="step-num">2</div>
           <h3>Escolha os destaques</h3>
           <p>Marque quais projetos aparecem no seu portfólio e no currículo — você decide a curadoria, não o algoritmo.</p>
         </div>
-        <div class="step-card">
+        <div class="step-card reveal">
           <div class="step-num">3</div>
           <h3>Compartilhe</h3>
           <p>Um link público pra colocar no LinkedIn ou na bio, e um botão pra exportar tudo em PDF pronto pra vaga.</p>
@@ -249,7 +318,7 @@
       </div>
       <div class="features-grid">
 
-        <div class="feature-card">
+        <div class="feature-card reveal">
           <div class="feature-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 0 0-3.16 19.5c.5.1.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.53 2.36 1.09 2.94.84.09-.65.35-1.09.63-1.34-2.22-.25-4.56-1.11-4.56-4.95 0-1.1.39-1.99 1.03-2.69-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02a9.5 9.5 0 0 1 5 0c1.91-1.3 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.69 0 3.85-2.34 4.7-4.57 4.95.36.31.68.92.68 1.85v2.75c0 .27.18.58.69.48A10 10 0 0 0 12 2Z"/></svg>
           </div>
@@ -257,7 +326,7 @@
           <p>Puxa nome, bio, avatar e repositórios direto da API oficial — sempre atualizado, sem digitar nada manualmente.</p>
         </div>
 
-        <div class="feature-card">
+        <div class="feature-card reveal">
           <div class="feature-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M9 15h6M9 11h3"/></svg>
           </div>
@@ -265,7 +334,7 @@
           <p>Preenche contato, resumo, experiência e formação; usa sua foto do GitHub ou envia outra. O PDF sai com os projetos em destaque já inclusos.</p>
         </div>
 
-        <div class="feature-card">
+        <div class="feature-card reveal">
           <div class="feature-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.5 15.4 6.5M8.6 13.5l6.8 4"/></svg>
           </div>
@@ -273,7 +342,7 @@
           <p>Uma URL própria pra colocar na bio do LinkedIn, no e-mail ou mandar direto pro recrutador.</p>
         </div>
 
-        <div class="feature-card">
+        <div class="feature-card reveal">
           <div class="feature-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21v-7M4 10V3M12 21v-11M12 6V3M20 21v-5M20 12V3"/><path d="M1 14h6M9 10h6M17 16h6"/></svg>
           </div>
@@ -281,26 +350,18 @@
           <p>Nem todo repositório merece aparecer. Você escolhe exatamente quais entram no portfólio e no currículo.</p>
         </div>
 
-        <div class="feature-card">
+        <div class="feature-card reveal">
           <div class="feature-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.2M12 19.8V22M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2 12h2.2M19.8 12H22M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M8.5 13.5 7 22l5-3 5 3-1.5-8.5"/></svg>
           </div>
-          <h3>Modo claro e escuro</h3>
-          <p>A interface se adapta à sua preferência e lembra a escolha na próxima visita.</p>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v16"/></svg>
-          </div>
-          <h3>Sem cadastro</h3>
-          <p>Não precisa criar conta nem senha. É só o seu usuário do GitHub.</p>
+          <h3>Certificados e prêmios</h3>
+          <p>Adiciona certificações e premiações direto no portfólio, com link pra credencial — e eles entram no currículo também.</p>
         </div>
 
       </div>
     </section>
 
-    <section class="cta-section">
+    <section class="cta-section reveal">
       <h2>Seu próximo portfólio já existe — está nos seus commits</h2>
       <p>Cola seu usuário do GitHub e veja em segundos.</p>
       <form id="cta-form" class="hero-form" style="margin: 0 auto;">
@@ -320,7 +381,11 @@
 <footer class="site-footer">
   <div class="site-footer-inner">
     <span class="brand-name">commitcard</span>
-    <span class="footer-tagline">feito com Spring Boot &amp; a API do GitHub</span>
+    <span class="footer-tagline">
+      feito por Ney Adrian ·
+      <a href="https://github.com/neyadrian" target="_blank" rel="noopener">GitHub</a> ·
+      <a href="https://www.linkedin.com/in/ney-adrian-casimiro-oliveira-567b902bb/" target="_blank" rel="noopener">LinkedIn</a>
+    </span>
   </div>
 </footer>
 
@@ -342,6 +407,47 @@
     e.preventDefault();
     irParaApp(document.getElementById('cta-username').value);
   });
+
+  // Quando a pessoa já está logada, preenche os campos com o próprio usuário —
+  // não faz sentido pedir pra ela digitar o nome dela de novo.
+  document.addEventListener('commitcard:auth', (e) => {
+    const dados = e.detail;
+    if (!dados || !dados.autenticado || !dados.githubUsername) return;
+
+    const heroInput = document.getElementById('hero-username');
+    const ctaInput = document.getElementById('cta-username');
+    if (heroInput && !heroInput.value) heroInput.value = dados.githubUsername;
+    if (ctaInput && !ctaInput.value) ctaInput.value = dados.githubUsername;
+  });
+
+  // Revela os cards com um leve atraso em sequência, conforme entram na tela.
+  (function(){
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const grupos = [
+      Array.from(document.querySelectorAll('.steps-grid .reveal')),
+      Array.from(document.querySelectorAll('.features-grid .reveal')),
+    ];
+
+    grupos.forEach(grupo => {
+      grupo.forEach((el, i) => { el.style.transitionDelay = prefersReducedMotion ? '0s' : `${i * 0.08}s`; });
+    });
+
+    if (prefersReducedMotion || !('IntersectionObserver' in window)){
+      document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
+      return;
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting){
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  })();
 </script>
 
 </body>

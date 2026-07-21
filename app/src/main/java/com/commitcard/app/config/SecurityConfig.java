@@ -7,6 +7,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 
 @Configuration
@@ -21,18 +23,25 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        // Padrão "cookie pra header", recomendado pelo próprio Spring Security pra front-ends
+        // em JS puro (sem template engine): o backend manda um token num cookie legível por
+        // JS (XSRF-TOKEN); o front lê esse cookie e devolve o mesmo valor no header
+        // X-XSRF-TOKEN em toda requisição que muda dado. Um site malicioso não consegue ler
+        // cookie de outra origem, então não tem como forjar esse header — é isso que barra o CSRF.
+        CsrfTokenRequestAttributeHandler requestHandler = new CsrfTokenRequestAttributeHandler();
+        requestHandler.setCsrfRequestAttributeName(null); // gera/renova o token em toda requisição, não só quando algo pede
+
         http
-                // CSRF desligado de propósito: o front é HTML+JS puro, sem token CSRF
-                // configurado nas chamadas fetch. Aceitável pra um projeto pessoal;
-                // numa aplicação real de produção o ideal é reabilitar e propagar
-                // o token no front (ou usar autenticação via token/JWT em vez de sessão).
-                .csrf(csrf -> csrf.disable())
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                        .csrfTokenRequestHandler(requestHandler)
+                )
                 .authorizeHttpRequests(auth -> auth
                         // páginas e arquivos estáticos: sempre públicos
                         .requestMatchers(
                                 "/", "/index.html", "/app.html",
                                 "/styles.css", "/theme.js", "/auth.js", "/logo.svg",
-                                "/favicon.ico",
+                                "/favicon.ico", "/favicon.png", "/apple-touch-icon.png",
                                 "/oauth2/**", "/login/**"
                         ).permitAll()
                         // ver um portfólio e checar se está logado: público
@@ -45,7 +54,6 @@ public class SecurityConfig {
                         .successHandler(oAuthSuccessHandler)
                 )
                 .logout(logout -> logout
-                        // Spring Security 7 substituiu AntPathRequestMatcher por PathPatternRequestMatcher
                         .logoutRequestMatcher(PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/logout"))
                         .logoutSuccessUrl("/")
                 );
