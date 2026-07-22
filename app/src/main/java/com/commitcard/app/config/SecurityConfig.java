@@ -47,6 +47,8 @@ public class SecurityConfig {
                         // ver um portfólio e checar se está logado: público
                         .requestMatchers(HttpMethod.GET, "/api/portfolio/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/auth/me").permitAll()
+                        // rota bonita do portfólio público (commitcard.com.br/usuario) — sempre pública
+                        .requestMatchers(HttpMethod.GET, "/*").permitAll()
                         // tudo que muda dado (sincronizar, destacar, gerar currículo) exige login
                         .anyRequest().authenticated()
                 )

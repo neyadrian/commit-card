@@ -312,6 +312,7 @@
         <div class="btn-row">
           <button class="btn" id="btn-sync">↻ Sincronizar com o GitHub</button>
           <button class="btn primary" id="btn-open-modal">↓ Gerar currículo</button>
+          <button class="btn" id="btn-copy-link">🔗 Copiar link</button>
         </div>
       </div>
     </div>
@@ -455,6 +456,7 @@
     btnCancelLinkedin: document.getElementById('btn-cancel-linkedin'),
     btnSync: document.getElementById('btn-sync'),
     btnOpenModal: document.getElementById('btn-open-modal'),
+    btnCopyLink: document.getElementById('btn-copy-link'),
     grid: document.getElementById('project-grid'),
     manageList: document.getElementById('manage-list'),
 
@@ -515,6 +517,7 @@
 
     els.btnSync.hidden = !dono;
     els.btnOpenModal.hidden = !dono;
+    els.btnCopyLink.hidden = !dono;
     els.certAddArea.hidden = !dono;
 
     const manageDetails = document.querySelector('details.manage');
@@ -928,6 +931,21 @@
   els.btnSearch.addEventListener('click', search);
   els.input.addEventListener('keydown', (e) => { if (e.key === 'Enter') search(); });
   els.btnSync.addEventListener('click', () => { if (currentUsername) runSync(currentUsername); });
+
+  els.btnCopyLink.addEventListener('click', async () => {
+    if (!currentUsername) return;
+    const url = `${window.location.origin}/${encodeURIComponent(currentUsername)}`;
+    const textoOriginal = els.btnCopyLink.textContent;
+
+    try{
+      await navigator.clipboard.writeText(url);
+      els.btnCopyLink.textContent = '✓ Copiado!';
+    } catch(e){
+      window.prompt('Copia esse link:', url);
+    } finally {
+      setTimeout(() => { els.btnCopyLink.textContent = textoOriginal; }, 2000);
+    }
+  });
 
   // ---------- modal: entries (experiência / formação) ----------
 

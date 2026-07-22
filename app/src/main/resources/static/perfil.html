@@ -1,0 +1,444 @@
+
+Claude terminou a resposta
+
+Identificou conflito de domínio OAuth e planejou atualização
+Identificou conflito de domínio OAuth e planejou atualização
+Isso é esperado — o app OAuth de produção que criamos foi configurado com o callback pra commitcard.onrender.com, mas agora você está acessando pelo domínio novo (commitcard.com.br). Como esses dois endereços são diferentes pro GitHub, ele bloqueia por segurança.
+
+Correção simples:
+
+Acessa https://github.com/settings/developers de novo
+Abre o app "Commit Card (produção)" (o segundo que você criou)
+Edita o campo Authorization callback URL, trocando de:
+   https://commitcard.onrender.com/login/oauth2/code/github
+pra:
+
+   https://commitcard.com.br/login/oauth2/code/github
+Salva
+Isso faz sentido porque agora commitcard.com.br é o seu domínio "oficial" de produção — não precisa mais manter o callback antigo do onrender.com.
+
+Detalhe: o GitHub (nos apps OAuth "clássicos", que é o tipo que você criou) só aceita uma única URL de callback por vez — então depois dessa troca, o login só vai funcionar acessando pelo commitcard.com.br, não mais pelo endereço onrender.com direto. Isso é o esperado, já que seu domínio próprio é o que importa daqui pra frente.
+
+Testa de novo depois de trocar e me conta se funcionou.
+
+sim, funcionou, uma duvida, qual o link que os usuarios irão compartilhar o portfolio?
+
+
+Formulou estrutura de URL para compartilhamento de portfólio
+Formulou estrutura de URL para compartilhamento de portfólio
+O link é assim:
+
+https://commitcard.com.br/app.html?user=SEU_USUARIO_DO_GITHUB
+No seu caso, por exemplo:
+
+https://commitcard.com.br/app.html?user=neyadrian
+É esse endereço que você (ou qualquer pessoa que sincronizar o portfólio dela) coloca no LinkedIn, currículo, assinatura de e-mail, etc. — troca só a parte ?user= pelo usuário do GitHub de quem quiser mostrar.
+
+Detalhe pra ficar de olho: hoje o link tem esse /app.html?user= no meio, que é um pouco menos "bonito" que algo tipo commitcard.com.br/neyadrian. Isso funciona perfeitamente bem, só não é tão limpo visualmente. Se um dia você quiser deixar mais elegante, dá pra configurar uma rota assim no backend — mas isso é só estética, não afeta em nada o funcionamento. Por enquanto, o link que te passei já é 100% compartilhável e funcional.
+
+vamos fazer essa alteração para o link ser assim, e ter um botão específico para colar o link, e o que as outras pessoas vão ver, sao apenas o botão do linkedin, repositorios e certificados, e não uma tela igual a de alteração
+
+
+Arquitetou URLs limpas, página pública minimalista e botão copiar link
+Arquitetou URLs limpas, página pública minimalista e botão copiar link
+Boa, três coisas: link bonito (commitcard.com.br/neyadrian), botão de copiar link pra você, e uma página nova e limpa pra quem visita (sem nada de "modo edição"). Vamos por partes.
+
+
+Preparando pastas
+Preparando pastas
+Primeiro, o backend — a rota "bonita" que transforma /neyadrian na página do portfólio:
+
+
+Controller que expõe a rota bonita /usuario pro portfólio público
+Controller que expõe a rota bonita /usuario pro portfólio público
+Agora atualizo o SecurityConfig pra deixar essa rota nova pública também:
+
+
+Iniciou criação do arquivo de perfil
+Iniciou criação do arquivo de perfil
+Agora a página nova, limpa, só pra quem visita — sem barra de busca, sem botões de edição:
+
+
+Criando a página pública limpa
+Criando a página pública limpa
+Agora o botão de "copiar link" no app.html, visível só pra você (o dono):
+
+
+Planejou toggle de visibilidade e integração de cópia de link
+Planejou toggle de visibilidade e integração de cópia de link
+Agora o clique do botão — copia o link bonito (/usuario, não o /app.html?user=):
+
+
+Verificou o equilíbrio das modificações realizadas
+Verificou o equilíbrio das modificações realizadas
+Tudo balanceado. Vamos entregar:
+
+
+Executou um comando, leu um arquivo
+Executou um comando, leu um arquivo
+O que mudou
+Link bonito: agora https://commitcard.com.br/neyadrian funciona direto (sem /app.html?user=) — o PublicProfileController.java novo intercepta qualquer nome de usuário na raiz do site e mostra o portfólio
+Página nova pra visitantes (perfil.html): mostra só nome, foto, bio, botão do LinkedIn, projetos em destaque e certificados — nada de barra de busca ou botões de gerenciar. Se você mesmo estiver logado vendo essa página, aparece um link discreto "Editar meu portfólio" te levando pro painel de gerenciamento
+Botão "Copiar link": novo botão ao lado de "Sincronizar" e "Gerar currículo" no seu painel (app.html) — só você vê, copia automaticamente o link bonito (/neyadrian) pra área de transferência
+Como instalar
+perfil.html → novo arquivo em src/main/resources/static/
+app.html → substitui o antigo, mesmo lugar
+PublicProfileController.java → novo arquivo em src/main/java/com/commitcard/app/controller/
+SecurityConfig.java → substitui o antigo em src/main/java/com/commitcard/app/config/
+Detalhe técnico que vale saber: como o site do GitHub reserva algumas palavras como nomes de usuário proibidos (tipo "settings", "login"), eu fiz o mesmo aqui — palavras como api, login, logout, app.html não vão funcionar como se fossem nome de usuário, pra não conflitar com o resto do site. Isso é só uma proteção técnica, não deveria afetar ninguém na prática.
+
+Depois de subir pro GitHub e o Render fazer o deploy automático, testa acessando https://commitcard.com.br/neyadrian direto, e também clica no botão "Copiar link" no seu painel pra conferir se copia certinho.
+
+
+Perfil
+Código · HTML 
+
+App
+Código · HTML 
+
+Securityconfig
+Código · JAVA 
+
+Publicprofilecontroller
+Código · JAVA 
+
+
+
+
+
+Claude é uma IA e pode cometer erros. Por favor, verifique as respostas.
+
+
+Perfil · HTML
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Commit Card — portfólio</title>
+<link rel="icon" type="image/svg+xml" href="logo.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .wrap{ max-width: 860px; margin: 0 auto; padding: 56px 24px 100px; }
+ 
+  #state-area{ min-height: 20px; }
+ 
+  .empty-box{ border: 1px dashed var(--border-strong); border-radius: var(--radius); padding: 40px 24px; text-align: center; }
+  .empty-box p{ color: var(--text-dim); font-size: 15px; margin: 0 0 20px; }
+  .empty-box .who{ font-family: var(--mono); color: var(--text); font-weight: 600; }
+ 
+  /* ---------- Perfil ---------- */
+  .profile{ display: flex; gap: 22px; align-items: flex-start; margin-bottom: 12px; }
+  .avatar{
+    width: 88px; height: 88px; border-radius: 24px; border: 1px solid var(--border);
+    box-shadow: var(--shadow); flex-shrink: 0; background: var(--bg-elevated); object-fit: cover;
+  }
+  .profile-info{ flex:1; min-width:0; padding-top: 2px; }
+  .profile-name{ font-family: var(--display); font-size: 27px; font-weight: 700; margin: 0 0 4px; letter-spacing: -0.015em; }
+  .profile-handle{ font-family: var(--mono); font-size: 13.5px; color: var(--accent); margin: 0 0 14px; }
+ 
+  #linkedin-area{ margin: 0 0 14px; }
+  .linkedin-link{
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 500; color: var(--text-dim);
+    border: 1px solid var(--border-strong); border-radius: 999px;
+    padding: 6px 14px 6px 12px;
+  }
+  .linkedin-link:hover{ color: var(--accent); border-color: var(--accent); text-decoration: none; }
+ 
+  .profile-bio{ font-size: 15px; color: var(--text-dim); margin: 0 0 6px; max-width: 60ch; }
+ 
+  .btn-edit-own{ margin-top: 14px; }
+ 
+  /* ---------- Projetos ---------- */
+  .project-grid{ display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  @media (max-width: 640px){ .project-grid{ grid-template-columns: 1fr; } }
+ 
+  .project-card{
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 18px; display:flex; flex-direction: column; gap: 8px;
+    transition: border-color .15s ease, transform .12s ease, box-shadow .15s ease;
+  }
+  .project-card:hover{ border-color: var(--border-strong); transform: translateY(-2px); box-shadow: var(--shadow); }
+  @media (prefers-reduced-motion: reduce){ .project-card:hover{ transform: none; } }
+ 
+  .project-top{ display:flex; align-items:center; justify-content: space-between; gap: 8px; }
+  .project-hash{
+    font-family: var(--mono); font-size: 11px; color: var(--text-faint); background: var(--bg-input);
+    border: 1px solid var(--border); padding: 2px 7px; border-radius: 999px;
+  }
+  .project-name{ font-family: var(--mono); font-size: 15px; font-weight: 700; color: var(--text); margin: 0; word-break: break-word; }
+  .project-name a{ color: inherit; }
+  .project-name a:hover{ color: var(--accent); text-decoration: none; }
+  .project-desc{ font-size: 13.5px; color: var(--text-dim); margin: 0; flex: 1; }
+  .project-stats{ display:flex; gap: 14px; flex-wrap: wrap; font-family: var(--mono); font-size: 12px; margin-top: 4px; }
+  .stat{ display:flex; align-items:center; gap: 5px; color: var(--text-dim); }
+  .stat.lang::before{ content:''; width: 8px; height: 8px; border-radius: 50%; background: var(--violet); display:inline-block; }
+  .stat.stars{ color: var(--amber); }
+ 
+  /* ---------- Certificados ---------- */
+  .cert-grid{ display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  @media (max-width: 640px){ .cert-grid{ grid-template-columns: 1fr; } }
+  .cert-card{ background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; }
+  .cert-title{ font-family: var(--display); font-size: 14.5px; font-weight: 700; margin: 0 0 4px; }
+  .cert-meta{ font-size: 13px; color: var(--text-dim); margin: 0; }
+  .cert-date{ font-family: var(--mono); font-size: 11.5px; color: var(--text-faint); margin: 6px 0 0; }
+  .cert-link{ font-size: 12.5px; margin-top: 6px; display: inline-block; }
+</style>
+</head>
+<body>
+ 
+<nav class="navbar">
+  <div class="nav-left">
+    <a class="brand" href="index.html" style="text-decoration:none;">
+      <svg width="28" height="28" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+        <rect x="4" y="4" width="56" height="56" rx="16" fill="var(--bg-input)" stroke="var(--accent)" stroke-width="2.5"/>
+        <path d="M22 48V32" stroke="var(--accent)" stroke-width="4" stroke-linecap="round"/>
+        <path d="M22 32V17" stroke="var(--accent)" stroke-width="4" stroke-linecap="round"/>
+        <path d="M22 32L37 20" stroke="var(--accent)" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="22" cy="48" r="3.6" fill="var(--bg-input)" stroke="var(--accent)" stroke-width="2.6"/>
+        <circle cx="22" cy="32" r="3.6" fill="var(--accent)"/>
+        <circle cx="22" cy="17" r="3.6" fill="var(--bg-input)" stroke="var(--accent)" stroke-width="2.6"/>
+        <circle cx="37" cy="20" r="3.6" fill="var(--bg-input)" stroke="var(--accent)" stroke-width="2.6"/>
+      </svg>
+      <span class="brand-name">commitcard</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html#como-funciona">Como funciona</a></li>
+      <li><a href="index.html#recursos">Recursos</a></li>
+    </ul>
+  </div>
+  <div class="nav-right">
+    <div id="auth-slot"></div>
+    <button class="theme-toggle" id="theme-toggle" aria-label="Alternar tema claro/escuro">
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"/></svg>
+      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.2M12 19.8V22M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2 12h2.2M19.8 12H22M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg>
+    </button>
+  </div>
+</nav>
+ 
+<div class="wrap">
+ 
+  <div id="state-area"></div>
+ 
+  <div id="content" hidden>
+ 
+    <div class="profile">
+      <img id="avatar" class="avatar" alt="">
+      <div class="profile-info">
+        <p class="profile-name" id="profile-name"></p>
+        <p class="profile-handle" id="profile-handle"></p>
+ 
+        <div id="linkedin-area">
+          <a class="linkedin-link" id="linkedin-link" href="#" target="_blank" rel="noopener" hidden>
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.38-1.85 3.6 0 4.27 2.37 4.27 5.46zM5.34 7.43a2.07 2.07 0 1 1 0-4.13 2.07 2.07 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56z"/></svg>
+            LinkedIn
+          </a>
+        </div>
+ 
+        <p class="profile-bio" id="profile-bio" hidden></p>
+ 
+        <a class="btn ghost sm btn-edit-own" id="btn-edit-own" href="#" hidden>✎ Editar meu portfólio</a>
+      </div>
+    </div>
+ 
+    <div class="section-label" id="projects-label" hidden>Projetos em destaque</div>
+    <div class="project-grid" id="project-grid"></div>
+ 
+    <div class="section-label" id="cert-label" hidden>Certificados e prêmios</div>
+    <div class="cert-grid" id="cert-grid"></div>
+ 
+  </div>
+</div>
+ 
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <span class="brand-name">commitcard</span>
+    <span class="footer-tagline">
+      feito por Ney Adrian ·
+      <a href="https://github.com/neyadrian" target="_blank" rel="noopener">GitHub</a> ·
+      <a href="https://www.linkedin.com/in/ney-adrian-casimiro-oliveira-567b902bb/" target="_blank" rel="noopener">LinkedIn</a>
+    </span>
+  </div>
+</footer>
+ 
+<script src="theme.js"></script>
+<script src="auth.js"></script>
+<script>
+(function(){
+  "use strict";
+ 
+  const API_BASE = "";
+ 
+  function escapeHtml(str){
+    const div = document.createElement('div');
+    div.textContent = str == null ? '' : String(str);
+    return div.innerHTML;
+  }
+ 
+  function shortHash(str){
+    let h = 0;
+    for (let i = 0; i < str.length; i++){ h = (h * 31 + str.charCodeAt(i)) >>> 0; }
+    return h.toString(16).padStart(7, '0').slice(0, 7);
+  }
+ 
+  function usernameFromPath(){
+    const path = decodeURIComponent(location.pathname);
+    return path.replace(/^\/+/, '').replace(/\/+$/, '');
+  }
+ 
+  async function fetchPortfolio(username){
+    const res = await fetch(`${API_BASE}/api/portfolio/${encodeURIComponent(username)}`);
+    if (res.status === 404) return null;
+    if (!res.ok) throw new Error('Falha ao carregar o portfólio.');
+    return res.json();
+  }
+ 
+  function renderLinkedin(user){
+    const link = document.getElementById('linkedin-link');
+    const url = (user.linkedinUrl || '').trim();
+    if (url){ link.href = url; link.hidden = false; }
+    else { link.hidden = true; }
+  }
+ 
+  function renderProjetos(projetos){
+    const destacados = (projetos || []).filter(p => p.destaque);
+    const label = document.getElementById('projects-label');
+    const grid = document.getElementById('project-grid');
+ 
+    if (destacados.length === 0){
+      label.hidden = true;
+      grid.innerHTML = '';
+      return;
+    }
+ 
+    label.hidden = false;
+    grid.innerHTML = destacados.map(p => `
+      <div class="project-card">
+        <div class="project-top">
+          <p class="project-name"><a href="${escapeHtml(p.urlRepositorio || '#')}" target="_blank" rel="noopener">${escapeHtml(p.nomeRepositorio || 'repositório')}</a></p>
+          <span class="project-hash">${shortHash(p.nomeRepositorio || String(p.id))}</span>
+        </div>
+        ${p.descricao ? `<p class="project-desc">${escapeHtml(p.descricao)}</p>` : '<p class="project-desc"></p>'}
+        <div class="project-stats">
+          ${p.linguagemPrincipal ? `<span class="stat lang">${escapeHtml(p.linguagemPrincipal)}</span>` : ''}
+          <span class="stat stars">★ ${p.stars ?? 0}</span>
+          <span class="stat">+${p.forks ?? 0} forks</span>
+        </div>
+      </div>
+    `).join('');
+  }
+ 
+  function renderCertificados(certificados){
+    const lista = certificados || [];
+    const label = document.getElementById('cert-label');
+    const grid = document.getElementById('cert-grid');
+ 
+    if (lista.length === 0){
+      label.hidden = true;
+      grid.innerHTML = '';
+      return;
+    }
+ 
+    label.hidden = false;
+    grid.innerHTML = lista.map(c => `
+      <div class="cert-card">
+        <p class="cert-title">${escapeHtml(c.titulo || '')}</p>
+        ${c.instituicao ? `<p class="cert-meta">${escapeHtml(c.instituicao)}</p>` : ''}
+        ${c.data ? `<p class="cert-date">${escapeHtml(c.data)}</p>` : ''}
+        ${c.linkCredencial ? `<a class="cert-link" href="${escapeHtml(c.linkCredencial)}" target="_blank" rel="noopener">Ver credencial →</a>` : ''}
+      </div>
+    `).join('');
+  }
+ 
+  async function boot(){
+    const username = usernameFromPath();
+ 
+    if (!username){
+      window.location.href = '/';
+      return;
+    }
+ 
+    try{
+      const user = await fetchPortfolio(username);
+ 
+      if (!user){
+        document.getElementById('state-area').innerHTML = `
+          <div class="empty-box">
+            <p>Portfólio de <span class="who">@${escapeHtml(username)}</span> não encontrado.</p>
+            <a class="btn primary" href="/">Ir para a página inicial</a>
+          </div>
+        `;
+        return;
+      }
+ 
+      document.getElementById('avatar').src = user.avatarUrl || '';
+      document.getElementById('avatar').alt = user.nome || user.githubUsername;
+      document.getElementById('profile-name').textContent = user.nome || user.githubUsername;
+      document.getElementById('profile-handle').textContent = '@' + user.githubUsername;
+ 
+      if (user.bio){
+        const bio = document.getElementById('profile-bio');
+        bio.textContent = user.bio;
+        bio.hidden = false;
+      }
+ 
+      renderLinkedin(user);
+      renderProjetos(user.projetos);
+      renderCertificados(user.certificados);
+ 
+      document.getElementById('content').hidden = false;
+ 
+      // Se quem está vendo a página é o próprio dono logado, mostra um atalho pra gerenciar.
+      try{
+        const auth = await fetch(`${API_BASE}/api/auth/me`).then(r => r.json());
+        if (auth.autenticado && auth.githubUsername && auth.githubUsername.toLowerCase() === username.toLowerCase()){
+          const editBtn = document.getElementById('btn-edit-own');
+          editBtn.href = `/app.html?user=${encodeURIComponent(username)}`;
+          editBtn.hidden = false;
+        }
+      } catch(e){
+        // não é crítico — se falhar, simplesmente não mostra o atalho de editar
+      }
+ 
+    } catch(err){
+      document.getElementById('state-area').innerHTML = `<div class="error-box">✕ ${escapeHtml(err.message)}</div>`;
+    }
+  }
+ 
+  boot();
+})();
+</script>
+ 
+</body>
+</html>
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
