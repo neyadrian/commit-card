@@ -13,7 +13,7 @@
     if (!slot) return;
 
     if (!dados.autenticado){
-      slot.innerHTML = `<a class="btn sm" href="/oauth2/authorization/github">Entrar com GitHub</a>`;
+      slot.innerHTML = `<a class="btn sm" href="/oauth2/authorization/github"><span class="auth-cta-full">Entrar com GitHub</span><span class="auth-cta-short">Entrar</span></a>`;
       return;
     }
 

@@ -142,6 +142,11 @@
   #hero-username::placeholder{ color: var(--text-faint); }
   .hero-example{ margin-top: 16px; font-size: 13.5px; color: var(--text-faint); }
 
+  @media (max-width: 480px){
+    .hero-search-row{ flex-direction: column; }
+    .hero-search-row .btn{ width: 100%; justify-content: center; }
+  }
+
   .mockup-shell{
     max-width: 900px; margin: 56px auto 0;
     background: var(--bg-elevated); border: 1px solid var(--border);
