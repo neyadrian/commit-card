@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -14,13 +13,13 @@
 <link rel="stylesheet" href="styles.css">
 <style>
   .wrap{ max-width: 860px; margin: 0 auto; padding: 56px 24px 100px; }
- 
+
   #state-area{ min-height: 20px; }
- 
+
   .empty-box{ border: 1px dashed var(--border-strong); border-radius: var(--radius); padding: 40px 24px; text-align: center; }
   .empty-box p{ color: var(--text-dim); font-size: 15px; margin: 0 0 20px; }
   .empty-box .who{ font-family: var(--mono); color: var(--text); font-weight: 600; }
- 
+
   /* ---------- Perfil ---------- */
   .profile{ display: flex; gap: 22px; align-items: flex-start; margin-bottom: 12px; }
   .avatar{
@@ -30,7 +29,7 @@
   .profile-info{ flex:1; min-width:0; padding-top: 2px; }
   .profile-name{ font-family: var(--display); font-size: 27px; font-weight: 700; margin: 0 0 4px; letter-spacing: -0.015em; }
   .profile-handle{ font-family: var(--mono); font-size: 13.5px; color: var(--accent); margin: 0 0 14px; }
- 
+
   #linkedin-area{ margin: 0 0 14px; }
   .linkedin-link{
     display: inline-flex; align-items: center; gap: 6px;
@@ -39,15 +38,15 @@
     padding: 6px 14px 6px 12px;
   }
   .linkedin-link:hover{ color: var(--accent); border-color: var(--accent); text-decoration: none; }
- 
+
   .profile-bio{ font-size: 15px; color: var(--text-dim); margin: 0 0 6px; max-width: 60ch; }
- 
+
   .btn-edit-own{ margin-top: 14px; }
- 
+
   /* ---------- Projetos ---------- */
   .project-grid{ display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
   @media (max-width: 640px){ .project-grid{ grid-template-columns: 1fr; } }
- 
+
   .project-card{
     background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
     padding: 18px; display:flex; flex-direction: column; gap: 8px;
@@ -55,7 +54,7 @@
   }
   .project-card:hover{ border-color: var(--border-strong); transform: translateY(-2px); box-shadow: var(--shadow); }
   @media (prefers-reduced-motion: reduce){ .project-card:hover{ transform: none; } }
- 
+
   .project-top{ display:flex; align-items:center; justify-content: space-between; gap: 8px; }
   .project-hash{
     font-family: var(--mono); font-size: 11px; color: var(--text-faint); background: var(--bg-input);
@@ -69,7 +68,7 @@
   .stat{ display:flex; align-items:center; gap: 5px; color: var(--text-dim); }
   .stat.lang::before{ content:''; width: 8px; height: 8px; border-radius: 50%; background: var(--violet); display:inline-block; }
   .stat.stars{ color: var(--amber); }
- 
+
   /* ---------- Certificados ---------- */
   .cert-grid{ display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
   @media (max-width: 640px){ .cert-grid{ grid-template-columns: 1fr; } }
@@ -81,7 +80,7 @@
 </style>
 </head>
 <body>
- 
+
 <nav class="navbar">
   <div class="nav-left">
     <a class="brand" href="index.html" style="text-decoration:none;">
@@ -110,41 +109,41 @@
     </button>
   </div>
 </nav>
- 
+
 <div class="wrap">
- 
+
   <div id="state-area"></div>
- 
+
   <div id="content" hidden>
- 
+
     <div class="profile">
       <img id="avatar" class="avatar" alt="">
       <div class="profile-info">
         <p class="profile-name" id="profile-name"></p>
         <p class="profile-handle" id="profile-handle"></p>
- 
+
         <div id="linkedin-area">
           <a class="linkedin-link" id="linkedin-link" href="#" target="_blank" rel="noopener" hidden>
             <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.38-1.85 3.6 0 4.27 2.37 4.27 5.46zM5.34 7.43a2.07 2.07 0 1 1 0-4.13 2.07 2.07 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56z"/></svg>
             LinkedIn
           </a>
         </div>
- 
+
         <p class="profile-bio" id="profile-bio" hidden></p>
- 
+
         <a class="btn ghost sm btn-edit-own" id="btn-edit-own" href="#" hidden>✎ Editar meu portfólio</a>
       </div>
     </div>
- 
+
     <div class="section-label" id="projects-label" hidden>Projetos em destaque</div>
     <div class="project-grid" id="project-grid"></div>
- 
+
     <div class="section-label" id="cert-label" hidden>Certificados e prêmios</div>
     <div class="cert-grid" id="cert-grid"></div>
- 
+
   </div>
 </div>
- 
+
 <footer class="site-footer">
   <div class="site-footer-inner">
     <span class="brand-name">commitcard</span>
@@ -155,57 +154,57 @@
     </span>
   </div>
 </footer>
- 
+
 <script src="theme.js"></script>
 <script src="auth.js"></script>
 <script>
 (function(){
   "use strict";
- 
+
   const API_BASE = "";
- 
+
   function escapeHtml(str){
     const div = document.createElement('div');
     div.textContent = str == null ? '' : String(str);
     return div.innerHTML;
   }
- 
+
   function shortHash(str){
     let h = 0;
     for (let i = 0; i < str.length; i++){ h = (h * 31 + str.charCodeAt(i)) >>> 0; }
     return h.toString(16).padStart(7, '0').slice(0, 7);
   }
- 
+
   function usernameFromPath(){
     const path = decodeURIComponent(location.pathname);
     return path.replace(/^\/+/, '').replace(/\/+$/, '');
   }
- 
+
   async function fetchPortfolio(username){
     const res = await fetch(`${API_BASE}/api/portfolio/${encodeURIComponent(username)}`);
     if (res.status === 404) return null;
     if (!res.ok) throw new Error('Falha ao carregar o portfólio.');
     return res.json();
   }
- 
+
   function renderLinkedin(user){
     const link = document.getElementById('linkedin-link');
     const url = (user.linkedinUrl || '').trim();
     if (url){ link.href = url; link.hidden = false; }
     else { link.hidden = true; }
   }
- 
+
   function renderProjetos(projetos){
     const destacados = (projetos || []).filter(p => p.destaque);
     const label = document.getElementById('projects-label');
     const grid = document.getElementById('project-grid');
- 
+
     if (destacados.length === 0){
       label.hidden = true;
       grid.innerHTML = '';
       return;
     }
- 
+
     label.hidden = false;
     grid.innerHTML = destacados.map(p => `
       <div class="project-card">
@@ -222,18 +221,18 @@
       </div>
     `).join('');
   }
- 
+
   function renderCertificados(certificados){
     const lista = certificados || [];
     const label = document.getElementById('cert-label');
     const grid = document.getElementById('cert-grid');
- 
+
     if (lista.length === 0){
       label.hidden = true;
       grid.innerHTML = '';
       return;
     }
- 
+
     label.hidden = false;
     grid.innerHTML = lista.map(c => `
       <div class="cert-card">
@@ -244,18 +243,18 @@
       </div>
     `).join('');
   }
- 
+
   async function boot(){
     const username = usernameFromPath();
- 
+
     if (!username){
       window.location.href = '/';
       return;
     }
- 
+
     try{
       const user = await fetchPortfolio(username);
- 
+
       if (!user){
         document.getElementById('state-area').innerHTML = `
           <div class="empty-box">
@@ -265,24 +264,24 @@
         `;
         return;
       }
- 
+
       document.getElementById('avatar').src = user.avatarUrl || '';
       document.getElementById('avatar').alt = user.nome || user.githubUsername;
       document.getElementById('profile-name').textContent = user.nome || user.githubUsername;
       document.getElementById('profile-handle').textContent = '@' + user.githubUsername;
- 
+
       if (user.bio){
         const bio = document.getElementById('profile-bio');
         bio.textContent = user.bio;
         bio.hidden = false;
       }
- 
+
       renderLinkedin(user);
       renderProjetos(user.projetos);
       renderCertificados(user.certificados);
- 
+
       document.getElementById('content').hidden = false;
- 
+
       // Se quem está vendo a página é o próprio dono logado, mostra um atalho pra gerenciar.
       try{
         const auth = await fetch(`${API_BASE}/api/auth/me`).then(r => r.json());
@@ -294,40 +293,15 @@
       } catch(e){
         // não é crítico — se falhar, simplesmente não mostra o atalho de editar
       }
- 
+
     } catch(err){
       document.getElementById('state-area').innerHTML = `<div class="error-box">✕ ${escapeHtml(err.message)}</div>`;
     }
   }
- 
+
   boot();
 })();
 </script>
- 
+
 </body>
 </html>
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
