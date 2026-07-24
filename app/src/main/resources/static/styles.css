@@ -53,6 +53,11 @@ html[data-theme="light"]{
 
 *{ box-sizing: border-box; }
 
+/* Garante que o atributo "hidden" sempre funcione, mesmo em elementos que têm
+   outras regras de "display" (como os botões, que usam display:flex).
+   Sem isso, .btn{ display:flex } vence o comportamento padrão de esconder. */
+[hidden]{ display: none !important; }
+
 body{
   margin:0;
   background: var(--bg);
